@@ -7,6 +7,7 @@ import Renderer from "@arcgis/core/renderers/Renderer";
 
 import { AnalysisLayer } from "./getAnalysisLayerInfo";
 import { Location } from "../App";
+import PieChartRenderer from "@arcgis/core/renderers/PieChartRenderer";
 
 interface UnclassedInfo {
   label: string;
@@ -68,6 +69,11 @@ const getValue = async (
       : new Intl.NumberFormat("en-US").format(
           graphic.attributes[classBreaksRenderer.field]
         );
+  } else if (renderer.type === "pie-chart") {
+    const pieChartRenderer = renderer as PieChartRenderer;
+    pieChartRenderer.attributes.map((attribute) => {
+      result += graphic.attributes[attribute.field] + ",";
+    });
   } else {
     console.log("unknown renderer", renderer);
   }

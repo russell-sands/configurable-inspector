@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 import { Location } from "../../App";
-import { BinnedDataElement, IndexedNumber } from "../../CommonTypes";
+import { BinnedDataElement, IndexedNumber } from "../../shared/types";
 import { AnalysisLayer } from "../../utils/getAnalysisLayerInfo";
 
 // export type BinnedData = {
@@ -65,6 +65,12 @@ const handleUnclased = (
   });
 };
 
+const handlePies = (locations: Location[], layerTitle: string): void => {
+  locations[0].results?.forEach((result) => {
+    if (result.title === layerTitle) console.log(result);
+  });
+};
+
 export const getChartData = (
   locations: Location[],
   analysisLayers: AnalysisLayer[]
@@ -89,6 +95,8 @@ export const getChartData = (
         locations,
         analysisLayer.title
       );
+    } else if (analysisLayer.symbolType === "pie-chart") {
+      chartDataElements[analysisLayer.title] = handlePies();
     } else {
       // RN its because you never actually implemented histograms
       console.log(analysisLayer);

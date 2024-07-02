@@ -6,7 +6,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChartProps } from "../../CommonTypes";
+import { ChartProps } from "../../shared/types";
 
 export const ClassifiedValuesChart = ({ chartDefinition }: ChartProps) => {
   return (

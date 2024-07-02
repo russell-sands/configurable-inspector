@@ -36,10 +36,11 @@ import { usePortalNU } from "./hooks/usePortalNU";
 import { UploadLocations } from "./components/UploadModal/UploadLoactions";
 
 import Point from "@arcgis/core/geometry/Point";
-import { LocationList } from "./components/LocationResults/LocationList";
+import { LocationList } from "./components/LocationResults/LocationList.tsx";
 import { AnalysisLayer } from "./utils/getAnalysisLayerInfo";
 import { DisplayInfo, inspectLocation } from "./utils/inspectLocation";
 import { MapChartUI } from "./components/WebMap_ResultUI/MapChartUI";
+import { SelectedLocationElement } from "./shared/types";
 
 export interface Location {
   id: string | number;
@@ -52,6 +53,9 @@ function App() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [analysisLayers, setAnalysisLayers] = useState<AnalysisLayer[]>([]);
   const [modalOpen, setModalOpen] = useState<true | undefined>(true); // for boolean attribute on modal
+  const [selectedElement, setSelectedElement] = useState<
+    SelectedLocationElement | undefined
+  >(undefined);
 
   const params = new URLSearchParams(window.location.search);
   const webmap = params.get("webmap")
@@ -111,7 +115,10 @@ function App() {
           <CalcitePanel>
             <div id="grid--container">
               <CalcitePanel heading="Locations" id="panel--locationinfos">
-                <LocationList locations={locations} />
+                <LocationList
+                  locations={locations}
+                  setSelectedElement={setSelectedElement}
+                />
                 <div slot="footer">
                   <em>Select a result to filter the map</em>
                 </div>
@@ -121,6 +128,7 @@ function App() {
                 webmapId={webmap}
                 locations={locations}
                 analysisLayers={analysisLayers}
+                selectedLocation={selectedElement}
                 setAnalysisLayers={setAnalysisLayers}
               />
             </div>

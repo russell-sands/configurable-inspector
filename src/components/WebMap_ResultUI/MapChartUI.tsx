@@ -5,17 +5,18 @@ import { CalcitePanel } from "@esri/calcite-components-react";
 
 import { Location } from "../../App";
 import { AnalysisLayer } from "../../utils/getAnalysisLayerInfo";
-import { ComparisonCharts } from "../WebMap_Charts/ComparisonCharts";
 import { MapChartToggle } from "./MapChartToggle";
 import { MapContainer } from "../WebMap_Map/MapContainer";
 import { LayerList } from "../AgregatedResults/LayerList";
 import { ChartCarousel } from "../WebMap_Charts/ChartCarousel";
+import { SelectedLocationElement } from "../../shared/types";
 
 interface MapChartUIProps {
-  id: "string";
+  id: string;
   webmapId: string | null;
   locations: Location[];
   analysisLayers: AnalysisLayer[];
+  selectedLocation: SelectedLocationElement | undefined;
   setAnalysisLayers: (analysisLayers: AnalysisLayer[]) => void;
 }
 
@@ -26,6 +27,7 @@ export const MapChartUI = ({
   webmapId,
   locations,
   analysisLayers,
+  selectedLocation,
   setAnalysisLayers,
 }: MapChartUIProps) => {
   // View mode - toggle between showing the map and charts (if any)
@@ -54,6 +56,7 @@ export const MapChartUI = ({
         <MapContainer
           webmapId={webmapId as string} // webmap will always be populated - undf is ruled out if we are here
           locations={locations}
+          selectedLocation={selectedLocation}
           setAnalysisLayers={setAnalysisLayers}
         />
       </div>

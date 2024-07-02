@@ -22,8 +22,8 @@ export const ArcGISChart = ({
   definitionId,
   dataLayer,
 }: ArcGISChartProps) => {
-  console.log(definitionLayer.title, definitionLayer.charts[definitionId]);
-  console.log(dataLayer);
+  // console.log(definitionLayer.title, definitionLayer.charts[definitionId]);
+  // console.log(dataLayer);
   const seriesType = definitionLayer.charts[definitionId].series[0].type;
   switch (seriesType) {
     case "barSeries":

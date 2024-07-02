@@ -5,7 +5,7 @@ import "@esri/calcite-components/dist/components/calcite-block";
 import { CalciteCard } from "@esri/calcite-components-react";
 
 import { UniqueValuesChart } from "./UniqueValuesChart";
-import { ElementDefinition, SymbolType } from "../../CommonTypes";
+import { ElementDefinition, SymbolType } from "../../shared/types";
 import { ClassifiedValuesChart } from "./ClassifiedValuesChart";
 import { HistogramChart } from "./HistogramChart";
 

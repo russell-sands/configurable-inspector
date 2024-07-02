@@ -1,6 +1,6 @@
 import { PieChart, Pie, Legend, ResponsiveContainer, Tooltip } from "recharts";
 
-import { ChartProps } from "../../CommonTypes";
+import { ChartProps } from "../../shared/types";
 
 export const UniqueValuesChart = ({ chartDefinition }: ChartProps) => {
   const chartWidth = 500;

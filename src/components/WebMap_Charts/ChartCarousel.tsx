@@ -24,7 +24,6 @@ export const ChartCarousel = ({
   chartLayers,
 }: ChartCarouselProps) => {
   const compareLayers = createResultLayers(locations, chartLayers);
-  console.log(locations);
 
   // Get the titles of all charts
   const chartTitles: string[] = [];

@@ -1,5 +1,5 @@
 import { Location } from "../../App";
-import { ElementDefinition } from "../../CommonTypes";
+import { ElementDefinition } from "../../shared/types";
 import { AnalysisLayer } from "../../utils/getAnalysisLayerInfo";
 import { getChartData } from "./getChartData";
 import { getChartStyles } from "./getChartStyles";

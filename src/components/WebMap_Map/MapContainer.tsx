@@ -4,20 +4,21 @@ import { useRef, useEffect, useMemo } from "react";
 import WebMap from "@arcgis/core/WebMap";
 import MapView from "@arcgis/core/views/MapView";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
-// import Collection from "@arcgis/core/core/Collection";
+import Home from "@arcgis/core/widgets/Home.js";
+
 import { pointsToGraphics } from "../../utils/processData";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-
 import { Location } from "../../App";
 import {
   AnalysisLayer,
   getAnalysisLayerInfo,
 } from "../../utils/getAnalysisLayerInfo";
+import { SelectedLocationElement } from "../../shared/types";
 
 export interface MapContainerProps {
   webmapId: string;
   locations: Location[];
-  // setResults: () => void;
+  selectedLocation: SelectedLocationElement | undefined;
   setAnalysisLayers: (layers: AnalysisLayer[]) => void;
 }
 
@@ -27,36 +28,50 @@ export const MapContainer = (props: MapContainerProps) => {
   const viewRef = useRef<MapView | null>(null);
 
   const locationsLayer = useMemo(() => new GraphicsLayer(), []);
+  // const locationsLayer = new GraphicsLayer();
 
-  useEffect(() => {
-    if (mapDiv.current) {
-      const map = new WebMap({
+  const webmap = useMemo(
+    () =>
+      new WebMap({
         portalItem: {
           id: props.webmapId,
         },
-      });
+      }),
+    []
+  );
+  webmap.layers.add(locationsLayer);
 
-      map.add(locationsLayer, 5);
-
+  useEffect(() => {
+    if (mapDiv.current) {
       viewRef.current = new MapView({
         container: mapDiv.current,
-        map,
+        map: webmap,
       });
+    }
+  }, [mapDiv]);
+
+  useEffect(() => {
+    if (viewRef.current) {
       viewRef.current.when(() => {
         // List all of the feature layers and cast them as a
         // feature layer - they default to the generic Layer
         const analysisLayers: AnalysisLayer[] = [];
-        map.allLayers.forEach((layer, index) => {
+        webmap.allLayers.forEach((layer, index) => {
           if (layer.type === "feature") {
             analysisLayers.push(
               getAnalysisLayerInfo(layer as FeatureLayer, index)
             );
           }
         });
+        const home = new Home({
+          view: viewRef.current,
+        });
+        viewRef.current.ui.add(home, "top-right");
         props.setAnalysisLayers(analysisLayers);
       });
+      // webmap.layers.add(locationsLayer);
     }
-  }, [mapDiv]);
+  }, [viewRef]);
 
   // Update the locations displayed on the map
   useEffect(() => {
@@ -67,6 +82,27 @@ export const MapContainer = (props: MapContainerProps) => {
       viewRef.current.goTo(graphics);
     }
   }, [props.locations]);
+
+  useEffect(() => {
+    if (props.selectedLocation) {
+      viewRef.current?.goTo({
+        target: props.selectedLocation.zoomToLocation,
+        zoom: 10,
+        opts: { durration: 500 },
+      });
+      viewRef.current?.map.allLayers.forEach((layer) => {
+        if (layer.title === props.selectedLocation?.displayLayer) {
+          layer.visible = true;
+        } else {
+          if (layer.type === "feature") layer.visible = false;
+        }
+      });
+    } else {
+      viewRef.current?.map.allLayers.forEach((layer) => {
+        if (layer.type === "feature") layer.visible = false;
+      });
+    }
+  }, [props.selectedLocation]);
 
   return <div className="arcgis--map" ref={mapDiv}></div>;
 };
