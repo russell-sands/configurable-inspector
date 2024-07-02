@@ -1,0 +1,174 @@
+/* CSS url as a string */
+@import "https://js.arcgis.com/4.29/@arcgis/core/assets/esri/themes/light/main.css";
+html,
+body,
+.arcgis--map {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+:root {
+  --chart-subtitle-padding-top: 5px;
+  --chart-subtitle-font-size: 0.9rem;
+}
+
+.calcite--card--location {
+  width: 100%;
+  margin: 0 auto;
+  padding: 5px;
+}
+
+/* .calcite--card--location--value, */
+.calcite--card--location--layername {
+  font-size: 1rem;
+}
+
+.calcite--card--layer {
+  width: 48%;
+}
+
+#panel--left {
+  width: 500px;
+  overflow-y: scroll;
+}
+#panel--left::-webkit-scrollbar {
+  width: 10px;
+}
+#panel--left::-webkit-scrollbar-track {
+  border-radius: 3px;
+  background-color: gainsboro;
+}
+#panel--left::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: darkgray;
+}
+
+#grid--container {
+  margin: 1rem;
+  height: 100%;
+  max-height: calc(100% - 2rem);
+  display: grid;
+  /* grid-auto-columns: 1fr; */
+  grid-template-columns: minmax(18rem, 0.5fr) 1fr 1fr;
+  grid-template-rows: 0.4fr 1fr 1fr;
+  gap: 1.5rem 1.5rem;
+  grid-template-areas:
+    "panel--locationinfos panel--map panel--map"
+    "panel--locationinfos panel--map panel--map"
+    "panel--locationinfos panel--map panel--map";
+  /* "panel--locationinfos panel--layerinfos panel--layerinfos"; */
+}
+
+#grid--container calcite-panel {
+  box-shadow: var(--calcite-shadow-sm);
+}
+
+#panel--map {
+  grid-area: panel--map;
+}
+
+#panel--locationinfos {
+  grid-area: panel--locationinfos;
+}
+#panel--layerinfos {
+  grid-area: panel--layerinfos;
+}
+
+@media screen and (max-width: 800px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+    grid-template-areas: "panel--layerinfos" "panel--map" "panel--locationinfos";
+  }
+  .panel-start {
+    max-height: 40vh;
+  }
+  .panel-map {
+    height: 40vh;
+  }
+}
+
+.chart--container {
+  width: 550px;
+  height: 100%;
+  min-height: 200px;
+}
+
+#toggle--charts {
+  padding-right: 7px;
+  margin: auto;
+}
+
+#chip--map {
+  --calcite-color-brand: rgb(0, 150, 255);
+  --calcite-ui-icon-color: rgb(0, 150, 255);
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+#chip--map[selected] {
+  --calcite-color-foreground-2: rgba(0, 150, 255, 0.25);
+}
+
+#chip--charts {
+  --calcite-color-brand: rgb(122, 129, 255);
+  --calcite-ui-icon-color: rgb(122, 129, 255);
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+#chip--charts[selected] {
+  --calcite-color-foreground-2: rgba(122, 129, 255, 0.25);
+}
+
+#chip--summary {
+  --calcite-color-brand: rgb(242, 95, 161);
+  --calcite-ui-icon-color: rgb(242, 95, 161);
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+#chip--summary[selected] {
+  --calcite-color-foreground-2: rgba(242, 95, 161, 0.25);
+}
+
+.comparsion--chart--container {
+  height: 100%;
+}
+
+#comparison--chart--grid {
+  margin: 1rem;
+  height: 100%;
+  max-height: calc(100% - 2rem);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  grid-template-areas: "panel-left panel-right";
+}
+#comparison--chart--left {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  grid-area: panel-left;
+}
+#comparison--chart--right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  grid-area: panel-right;
+}
+
+.comparison--chart--subtitle {
+  padding-top: var(--chart-subtitle-padding-top);
+  font-size: var(--chart-subtitle-font-size);
+  font-style: italic;
+}
+
+.comparison--chart--arcgis {
+  height: calc(
+    100% - (var(--chart-subtitle-font-size) + var(--chart-subtitle-padding-top))
+  );
+  width: 100%;
+}
