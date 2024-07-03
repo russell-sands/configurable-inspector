@@ -14,17 +14,6 @@ body,
   --chart-subtitle-font-size: 0.9rem;
 }
 
-.calcite--card--location {
-  width: 100%;
-  margin: 0 auto;
-  padding: 5px;
-}
-
-/* .calcite--card--location--value, */
-.calcite--card--location--layername {
-  font-size: 1rem;
-}
-
 .calcite--card--layer {
   width: 48%;
 }

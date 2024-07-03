@@ -21,6 +21,11 @@ export interface IndexedNumber {
   [index: string]: number;
 }
 
+export type FeatureLayerRenderer =
+  | UniqueValueRenderer
+  | ClassBreaksRenderer
+  | PieChartRenderer;
+
 // Properties of a chart - data and styles
 export type ChartProperties = {
   data: IndexedString;

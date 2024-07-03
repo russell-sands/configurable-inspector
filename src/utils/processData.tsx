@@ -10,7 +10,7 @@ import {
 } from "../components/UploadModal/UploadLoactions";
 
 import { Location } from "../App";
-import { RenderResult } from "./inspectLocation";
+import { RenderResult } from "./x_inspectLocation";
 
 export interface QueryResult {
   title: string | undefined;

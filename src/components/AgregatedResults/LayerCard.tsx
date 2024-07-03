@@ -20,9 +20,16 @@ export const LayerCard = ({
   symbolType,
   definition,
 }: LocationCardProps) => {
+  let chartTitle = title;
+  if (symbolType === "unique-values") chartTitle += " (Count of locations)";
+  if (symbolType === "class-breaks-classified")
+    chartTitle += " (Count of locations)";
+  if (symbolType === "class-breaks-unclassed")
+    chartTitle += " Histogram (distribution per-location)";
+  if (symbolType === "pie-chart") chartTitle += " (Sum of value per location)";
   return (
-    <CalciteCard label={title} className="calcite--card--layer">
-      <span slot="heading">{title}</span>
+    <CalciteCard label={chartTitle} className="calcite--card--layer">
+      <span slot="heading">{chartTitle}</span>
       <div className="chart--container">
         {(() => {
           if (symbolType === "unique-values") {
@@ -31,6 +38,8 @@ export const LayerCard = ({
             return <ClassifiedValuesChart chartDefinition={definition} />;
           } else if (symbolType === "class-breaks-unclassed") {
             return <HistogramChart chartDefinition={definition} />;
+          } else if (symbolType === "pie-chart") {
+            return <UniqueValuesChart chartDefinition={definition} />;
           } else {
             console.log(title);
             return <></>;

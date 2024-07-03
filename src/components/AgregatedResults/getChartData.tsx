@@ -4,10 +4,6 @@ import { Location } from "../../App";
 import { BinnedDataElement, IndexedNumber } from "../../shared/types";
 import { AnalysisLayer } from "../../utils/getAnalysisLayerInfo";
 
-// export type BinnedData = {
-//   [index: string]: number;
-// };
-
 export type LayerResults = {
   [index: string]: IndexedNumber;
 };
@@ -30,14 +26,16 @@ const handleUniqueAndClassed = (
     if (location?.results) {
       // For each result (layer) in the results
       location.results.forEach((result) => {
-        if (result.title === layerTitle)
-          if (hasKey(layerResult, result.value)) {
-            const updatedValue = layerResult[result.value] + 1;
-            layerResult[result.value] = updatedValue;
-          } else {
-            // If there is no summary value for the category yet, set it to 1
-            layerResult[result.value] = 1;
-          }
+        if (result.sourceLayer === layerTitle)
+          result.attributes.forEach((attribute) => {
+            if (hasKey(layerResult, attribute.value as string)) {
+              const updatedValue = layerResult[attribute.value] + 1;
+              layerResult[attribute.value] = updatedValue;
+            } else {
+              // If there is no summary value for the category yet, set it to 1
+              layerResult[attribute.value] = 1;
+            }
+          });
       });
     }
   });
@@ -51,9 +49,11 @@ const handleUnclased = (
   const unclassedResults: number[] = [];
   locations.forEach((location) =>
     location.results?.forEach((result) => {
-      if (result.title === layerTitle) {
+      if (result.sourceLayer === layerTitle) {
         // US FORMATTED NUMBERS ONLY
-        unclassedResults.push(Number(result.value.replace(",", "")));
+        unclassedResults.push(
+          Number(result.attributes[0].value.replace(",", ""))
+        );
       }
     })
   );
@@ -65,10 +65,31 @@ const handleUnclased = (
   });
 };
 
-const handlePies = (locations: Location[], layerTitle: string): void => {
-  locations[0].results?.forEach((result) => {
-    if (result.title === layerTitle) console.log(result);
+const handlePies = (
+  locations: Location[],
+  layerTitle: string
+): IndexedNumber => {
+  const layerResult: IndexedNumber = {};
+  locations.forEach((location) => {
+    location.results.forEach((result) => {
+      if (result.sourceLayer === layerTitle) {
+        result.attributes.forEach((attribute) => {
+          if (hasKey(layerResult, attribute.name)) {
+            const updatedValue =
+              layerResult[attribute.name] +
+              Number(attribute.value.replace(",", ""));
+            layerResult[attribute.name] = updatedValue;
+          } else {
+            // If there is no summary value for the category yet, set it to 1
+            layerResult[attribute.name] = Number(
+              attribute.value.replace(",", "")
+            );
+          }
+        });
+      }
+    });
   });
+  return layerResult;
 };
 
 export const getChartData = (
@@ -96,7 +117,12 @@ export const getChartData = (
         analysisLayer.title
       );
     } else if (analysisLayer.symbolType === "pie-chart") {
-      chartDataElements[analysisLayer.title] = handlePies();
+      const layerResult = handlePies(locations, analysisLayer.title);
+      chartDataElements[analysisLayer.title] = Object.keys(layerResult).map(
+        (key) => {
+          return { name: key, value: layerResult[key] };
+        }
+      );
     } else {
       // RN its because you never actually implemented histograms
       console.log(analysisLayer);

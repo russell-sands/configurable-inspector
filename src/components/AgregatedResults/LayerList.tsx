@@ -4,7 +4,7 @@ import { CalciteCardGroup } from "@esri/calcite-components-react";
 import { AnalysisLayer } from "../../utils/getAnalysisLayerInfo";
 import { LayerCard } from "./LayerCard";
 import { Location } from "../../App";
-import { ChartDefinitions, getChartDefinitions } from "./getChartDefinition";
+import { ChartDefinitions, getChartDefinitions } from "./getChartDefinitions";
 
 // WOULD BE USED if using ArcGIS Charts
 // import { createResultLayers } from "../utils/createResultLayers";

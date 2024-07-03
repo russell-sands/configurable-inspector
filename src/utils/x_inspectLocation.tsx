@@ -8,6 +8,7 @@ import Renderer from "@arcgis/core/renderers/Renderer";
 import { AnalysisLayer } from "./getAnalysisLayerInfo";
 import { Location } from "../App";
 import PieChartRenderer from "@arcgis/core/renderers/PieChartRenderer";
+import { AnySupportedRenderer } from "../shared/types";
 
 interface UnclassedInfo {
   label: string;
@@ -21,8 +22,20 @@ export interface DisplayInfo {
   title: string;
   subtitle: string | undefined;
   value: string;
-  graphic: Graphic | undefined; // PLACEHOLDER in the case that migrate to ArcGIS Charts in the future
+  graphic: Graphic | undefined;
 }
+
+export type Result = {
+  attribute: string;
+  result: string | number;
+  graphic: Graphic;
+};
+
+export type LocationResult = {
+  results: {
+    [title: string]: Result[];
+  };
+};
 
 const createEmptyDisplayInfo = (): DisplayInfo => ({
   title: "",
@@ -60,6 +73,7 @@ const getValue = async (
   } else if (renderer.type === "class-breaks") {
     const classBreaksRenderer = renderer as ClassBreaksRenderer;
     const renderInfo = await classBreaksRenderer.getClassBreakInfo(graphic);
+    if (!renderInfo.label) console.log(renderInfo, graphic);
 
     // Need to do some checking on what comes back. Unclassed values also come through
     // as "class-breaks". Only distinction seems to be that unclassed values don't get
@@ -111,6 +125,8 @@ export const inspectLocation = async (
     result.graphic = queryResult.features[0];
     return result;
   });
+
   const result = await Promise.all(results);
+
   return result;
 };

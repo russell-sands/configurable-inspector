@@ -41,7 +41,8 @@ export const getChartDefinitions = (
         };
       }
     );
-    if (analysisLayer.symbolType === "class-breaks-unclassed") {
+    console.log(analysisLayer.title, analysisLayer.symbolType);
+    if (analysisLayer.symbolType === "pie-chart") {
       console.log(analysisLayer.title, chartDefinitions[analysisLayer.title]);
       console.log(layerData, layerStyle);
     }

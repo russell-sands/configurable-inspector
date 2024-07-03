@@ -17,8 +17,7 @@ export const createResultLayers = (
     const graphics: Graphic[] = [];
     locations.forEach((location) => {
       location.results?.forEach((result) => {
-        // console.log(result.title, result.graphic);
-        if (result.title === analysisLayer.title && result.graphic)
+        if (result.sourceLayer === analysisLayer.title && result.graphic)
           graphics.push(result.graphic);
       });
     });

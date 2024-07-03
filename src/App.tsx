@@ -38,11 +38,20 @@ import { UploadLocations } from "./components/UploadModal/UploadLoactions";
 import Point from "@arcgis/core/geometry/Point";
 import { LocationList } from "./components/LocationResults/LocationList.tsx";
 import { AnalysisLayer } from "./utils/getAnalysisLayerInfo";
-import { DisplayInfo, inspectLocation } from "./utils/inspectLocation";
+import { DisplayInfo } from "./utils/x_inspectLocation.tsx";
 import { MapChartUI } from "./components/WebMap_ResultUI/MapChartUI";
 import { SelectedLocationElement } from "./shared/types";
+import { LocationResult, inspectLocation } from "./utils/inspectLocations.tsx";
 
 export interface Location {
+  id: string | number;
+  label: string;
+  point: Point;
+  // results: DisplayInfo[] | undefined;
+  results: LocationResult[];
+}
+
+export interface Location2 {
   id: string | number;
   label: string;
   point: Point;
@@ -81,7 +90,9 @@ function App() {
   const submitCallback = (locations: Location[]) => {
     if (analysisLayers.length > 0 && locations.length > 0) {
       const results = locations.map(async (location) => {
+        // const locationResults = await inspectLocation(location, analysisLayers);
         const locationResults = await inspectLocation(location, analysisLayers);
+        // await Promise.all(locationResults);
         await Promise.all(locationResults);
         return { ...location, results: locationResults };
       });

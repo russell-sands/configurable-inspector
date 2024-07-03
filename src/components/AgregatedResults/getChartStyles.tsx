@@ -2,6 +2,7 @@ import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import { AnalysisLayer } from "../../utils/getAnalysisLayerInfo";
 import { ChartDataElements } from "./getChartData";
+import PieChartRenderer from "@arcgis/core/renderers/PieChartRenderer";
 
 // interface ChartStyles {
 //   [index: string]: IndexedString;
@@ -67,6 +68,19 @@ const handleUnclassedHistogram = (chartLabels: string[]): StyleDefinition[] => {
   });
 };
 
+const handlePieColors = (
+  chartLabels: string[],
+  renderer: PieChartRenderer
+): StyleDefinition[] => {
+  return renderer.attributes.map((attribute, index) => {
+    return {
+      label: attribute.field,
+      fill: `rgba(${attribute.color.r}, ${attribute.color.g}, ${attribute.color.b}, ${attribute.color.a})`,
+      order: index,
+    };
+  });
+};
+
 export const getChartStyles = (
   chartDataElements: ChartDataElements,
   analysisLayers: AnalysisLayer[]
@@ -91,6 +105,11 @@ export const getChartStyles = (
       );
     } else if (analysisLayer.symbolType === "class-breaks-unclassed") {
       chartStyles[analysisLayer.title] = handleUnclassedHistogram(chartLabels);
+    } else if (analysisLayer.symbolType === "pie-chart") {
+      chartStyles[analysisLayer.title] = handlePieColors(
+        chartLabels,
+        renderer as PieChartRenderer
+      );
     }
     const chartStyle = chartStyles[analysisLayer.title];
     chartStyle.unshift({

@@ -67,6 +67,7 @@ export const MapContainer = (props: MapContainerProps) => {
           view: viewRef.current,
         });
         viewRef.current.ui.add(home, "top-right");
+        console.log(analysisLayers);
         props.setAnalysisLayers(analysisLayers);
       });
       // webmap.layers.add(locationsLayer);
