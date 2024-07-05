@@ -1,13 +1,5 @@
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
-import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
-import PieChartRenderer from "@arcgis/core/renderers/PieChartRenderer.js";
-import {
-  AnySupportedRenderer,
-  FeatureLayerRenderer,
-  SymbolType,
-} from "../shared/types";
-import { symbol } from "d3";
+import { FeatureLayerRenderer, SymbolType } from "../shared/types";
 
 export interface AnalysisLayer {
   title: string; // consider removing this and using layer.title instead?
@@ -18,68 +10,76 @@ export interface AnalysisLayer {
   isExpressionBased: boolean;
 }
 
+export const checkSymbolType = (renderer: FeatureLayerRenderer) => {
+  if (renderer.type === "simple") {
+    return "simple";
+  } else if (renderer.type === "class-breaks") {
+    // Class Breaks - Either unclassed or classed based on whether or
+    // not there any classBreakinfos
+    if (renderer.classBreakInfos[0]?.label) return "class-breaks-classified";
+    else return "class-breaks-unclassed";
+  } else if (renderer.type === "unique-value") {
+    return "unique-values";
+  } else if (renderer.type === "pie-chart") {
+    return "pie-chart";
+  } else {
+    return "unknown";
+  }
+};
+
+const checkIfExpressionBased = (renderer: FeatureLayerRenderer): boolean => {
+  if (renderer.type === "class-breaks" || renderer.type === "unique-value") {
+    return renderer.valueExpression ? true : false;
+  } else {
+    return false;
+  }
+};
+
+export const getRequiredFields = (renderer: FeatureLayerRenderer): string[] => {
+  const requiredFields = [];
+  if (renderer.type === "pie-chart") {
+    renderer.attributes.forEach((attribute) =>
+      requiredFields.push(attribute.field)
+    );
+  } else if (renderer.type === "class-breaks") {
+    // For class breaks, need to watch for normalization fields
+    requiredFields.push(renderer.field);
+    if (renderer.normalizationType == "field")
+      requiredFields.push(renderer.normalizationField);
+  } else if (renderer.type === "unique-value") {
+    // For unique values, need to watch for multiple fields
+    requiredFields.push(renderer.field);
+    if (renderer.field2) requiredFields.push(renderer.field2);
+    if (renderer.field3) requiredFields.push(renderer.field3);
+  }
+  return requiredFields;
+};
+
 export const getAnalysisLayerInfo = (
   layer: FeatureLayer,
   index: number
 ): AnalysisLayer => {
-  let symbolType: SymbolType = "unknown";
-  const requiredFields: string[] = [];
-  // Get a list of the fields we will need
-  const featureRenderer = layer.renderer as FeatureLayerRenderer;
-
-  // Need to know if expression based. If it is, we'll end up requesting all fields rather than
-  // trying to determine what fields to use
-  const isExpressionBased = featureRenderer?.valueExpression ? true : false;
+  // Check if the layer has charts
   const hasCharts = layer?.charts && layer.charts.length > 0;
 
-  // Set the symbol type - prevents having to reinspect this later
-  // Get the renderer field
-  if (layer.renderer.type === "class-breaks") {
-    // class-breaks renderers may be normalized - get the normalization field if it is there
-    const r = featureRenderer as ClassBreaksRenderer;
-    // Determine if classe breaks are defined or not and then set Symbol Type
-    if (r.classBreakInfos[0]?.label) symbolType = "class-breaks-classified";
-    else symbolType = "class-breaks-unclassed";
-    // If the data are field-normalized, add the normalization field the required fields
-  } else if (layer.renderer.type === "unique-value") {
-    // Set the symbol type to unique-value
-    symbolType = "unique-values";
-  } else if (layer.renderer.type === "pie-chart") {
-    symbolType = "pie-chart";
-  } else {
-    console.log("unsupported renderer", layer.title, layer.renderer);
-  }
+  // Check if the renderer is expression based
+  const isExpressionBased = checkIfExpressionBased(
+    layer.renderer as FeatureLayerRenderer
+  );
 
-  // Get the required fields. If there are no charts, and the symbol doesn't require an
-  // attribute expression, request only the fields needed. Otherwise we will request all
-  // fields (for charts and expression based symbol)
-  if (!(symbolType === "unknown")) {
-    if (layer.renderer.type === "pie-chart") {
-      const r = featureRenderer as PieChartRenderer;
-      r.attributes.forEach((attribute) => requiredFields.push(attribute.field));
-    } else if (!isExpressionBased && !hasCharts) {
-      const r = featureRenderer as UniqueValueRenderer | ClassBreaksRenderer;
-      if (r.field) requiredFields.push(r.field);
-      if (layer.renderer.type === "class-breaks") {
-        // class-breaks renderers may be normalized - get the normalization field if it is there
-        const r = featureRenderer as ClassBreaksRenderer;
-        // If the data are field-normalized, add the normalization field the required fields
-        if (r.normalizationType === "field")
-          requiredFields.push(r.normalizationField);
-      } else if (layer.renderer.type === "unique-value") {
-        // A unique value renderer could have up to three fields - get those as well
-        const r = featureRenderer as UniqueValueRenderer;
-        if (r.field2) requiredFields.push(r.field2);
-        if (r.field3) requiredFields.push(r.field3);
-      }
-    }
-  }
+  // Get the required fields. When inspecting a location, an empty []
+  // is equivilent to "all fields"
+  const requiredFields: string[] =
+    hasCharts || isExpressionBased
+      ? []
+      : getRequiredFields(layer.renderer as FeatureLayerRenderer);
+  console.log(layer.title, requiredFields, isExpressionBased);
 
   return {
     title: layer.title,
     layer: layer,
     id: index,
-    symbolType: symbolType,
+    symbolType: checkSymbolType(layer.renderer as FeatureLayerRenderer),
     requiredFields: requiredFields,
     isExpressionBased: isExpressionBased,
   };

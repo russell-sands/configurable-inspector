@@ -1,3 +1,4 @@
+import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import PieChartRenderer from "@arcgis/core/renderers/PieChartRenderer";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
@@ -11,7 +12,8 @@ export type SelectedLocationElement = {
 export type AnySupportedRenderer =
   | UniqueValueRenderer
   | ClassBreaksRenderer
-  | PieChartRenderer;
+  | PieChartRenderer
+  | SimpleRenderer;
 
 export interface IndexedString {
   [index: string]: string;
@@ -24,7 +26,8 @@ export interface IndexedNumber {
 export type FeatureLayerRenderer =
   | UniqueValueRenderer
   | ClassBreaksRenderer
-  | PieChartRenderer;
+  | PieChartRenderer
+  | SimpleRenderer;
 
 // Properties of a chart - data and styles
 export type ChartProperties = {
@@ -35,6 +38,7 @@ export type ChartProperties = {
 // Supported Symbol Types
 export type SymbolType =
   | "unknown"
+  | "simple"
   | "unique-values"
   | "class-breaks-unclassed"
   | "class-breaks-classified"
