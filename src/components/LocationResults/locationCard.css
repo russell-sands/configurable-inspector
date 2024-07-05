@@ -3,7 +3,7 @@
 }
 
 .location--card {
-  width: calc(100%-5px);
+  width: calc(100%);
   margin: 0 auto;
   padding: 5px;
   --calcite-card-corner-radius: 3px;

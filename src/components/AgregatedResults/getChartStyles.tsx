@@ -114,7 +114,7 @@ export const getChartStyles = (
     const chartStyle = chartStyles[analysisLayer.title];
     chartStyle.unshift({
       label: "No data",
-      fill: "rgb(0, 0, 0)",
+      fill: "rgba(0, 0, 0, .5)",
       order: Infinity,
     });
     chartStyles[analysisLayer.title] = chartStyle;
