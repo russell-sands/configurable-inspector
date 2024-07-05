@@ -105,16 +105,18 @@ const applyClassBreaksUnclassedRenderer = async (
 ): Promise<AttributeInfo> => {
   // Get the value of the field
   let value = graphic.attributes[renderer.field];
+  let name = getAttributeName(renderer);
 
   // If the value is normalized by a field, normalize the value
   // by the renderer's normalizationField
-  if (renderer.normalizationField === "field") {
+  if (renderer.normalizationType === "field") {
     value /= graphic.attributes[renderer.normalizationField];
+    name = `${name} / ${renderer.normalizationField}`;
   }
 
   // Retur the attribute information
   return {
-    name: getAttributeName(renderer),
+    name: name,
     value: new Intl.NumberFormat("en-US").format(value),
     order: 0,
     label: new Intl.NumberFormat("en-US").format(value),
