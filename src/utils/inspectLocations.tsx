@@ -1,9 +1,9 @@
 import Graphic from "@arcgis/core/Graphic";
 import { Location } from "../App";
-import { AnalysisLayer } from "./getAnalysisLayerInfo";
+import { AnalysisLayer, FieldInfo } from "./getAnalysisLayerInfo";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Point from "@arcgis/core/geometry/Point";
-import { SymbolType } from "../shared/types";
+import { FeatureLayerRenderer, SymbolType } from "../shared/types";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import Renderer from "@arcgis/core/renderers/Renderer";
@@ -40,14 +40,17 @@ const makeQuery = async (
   return queryResult.features[0];
 };
 
+const findFieldLabel = (field: string, fieldInfos: FieldInfo[]) => {
+  return fieldInfos.filter((fieldInfo) => fieldInfo.name === field)[0].label;
+};
+
 const getAttributeName = (
-  renderer: UniqueValueRenderer | ClassBreaksRenderer
+  renderer: UniqueValueRenderer | ClassBreaksRenderer,
+  fields: FieldInfo[]
 ): string => {
-  const result =
-    renderer?.valueExpressionTitle ||
-    renderer.legendOptions?.title ||
-    renderer.field;
-  return result;
+  if (renderer?.valueExpressionTitle) return renderer.valueExpressionTitle;
+  else if (renderer.legendOptions?.title) return renderer.legendOptions.title;
+  else return findFieldLabel(renderer.field, fields);
 };
 
 /* Functions for getting attribute information from different renderers */
@@ -56,7 +59,8 @@ const getAttributeName = (
 // no class breaks have been defined
 const applyUniqueValueRenderer = async (
   renderer: UniqueValueRenderer,
-  graphic: Graphic
+  graphic: Graphic,
+  fields: FieldInfo[]
 ): Promise<AttributeInfo> => {
   const renderInfo = await renderer.getUniqueValueInfo(graphic);
 
@@ -74,7 +78,7 @@ const applyUniqueValueRenderer = async (
   //   definition
   // - In the layer level charts, lump them all together
   return {
-    name: getAttributeName(renderer),
+    name: getAttributeName(renderer, fields),
     value: value,
     order: 0,
     label: label,
@@ -83,7 +87,8 @@ const applyUniqueValueRenderer = async (
 
 const applyClassBreaksClassifiedRenderer = async (
   renderer: ClassBreaksRenderer,
-  graphic: Graphic
+  graphic: Graphic,
+  fields: FieldInfo[]
 ): Promise<AttributeInfo> => {
   const renderInfo = await renderer.getClassBreakInfo(graphic);
   // For class breaks legends values that are classified,
@@ -92,7 +97,7 @@ const applyClassBreaksClassifiedRenderer = async (
     ? renderInfo.label
     : `Other (${graphic.attributes[renderer.field]})`;
   return {
-    name: getAttributeName(renderer),
+    name: getAttributeName(renderer, fields),
     value: value,
     order: 0,
     label: value,
@@ -101,17 +106,21 @@ const applyClassBreaksClassifiedRenderer = async (
 
 const applyClassBreaksUnclassedRenderer = async (
   renderer: ClassBreaksRenderer,
-  graphic: Graphic
+  graphic: Graphic,
+  fields: FieldInfo[],
+  normalizationFieldInfo: FieldInfo | null
 ): Promise<AttributeInfo> => {
   // Get the value of the field
   let value = graphic.attributes[renderer.field];
-  let name = getAttributeName(renderer);
+  let name = getAttributeName(renderer, fields);
 
   // If the value is normalized by a field, normalize the value
   // by the renderer's normalizationField
   if (renderer.normalizationType === "field") {
-    value /= graphic.attributes[renderer.normalizationField];
-    name = `${name} / ${renderer.normalizationField}`;
+    if (normalizationFieldInfo) {
+      value /= graphic.attributes[renderer.normalizationField];
+      name = `${name} / ${normalizationFieldInfo.label}`;
+    }
   }
 
   // Retur the attribute information
@@ -126,36 +135,43 @@ const applyClassBreaksUnclassedRenderer = async (
 // For unique value and class break renderers, use the renderer
 // to figure out what the value and label should be
 const applyRenderer = async (
-  sourceLayer: string,
-  symbolType: SymbolType,
-  graphic: Graphic,
-  renderer: Renderer
+  analysisLayer: AnalysisLayer,
+  graphic: Graphic
 ): Promise<LocationResult> => {
   // Initialize the output
   const layerResults: LocationResult = {
-    sourceLayer: sourceLayer,
+    sourceLayer: analysisLayer.title,
     graphic: graphic,
     attributes: [],
   };
 
+  const renderer = analysisLayer.layer.renderer as FeatureLayerRenderer;
+
   // Depending on the render settings, use the renderer to get the value and
   // label to use.
-  if (symbolType === "unique-values") {
+  if (analysisLayer.symbolType === "unique-values") {
     layerResults.attributes.push(
-      await applyUniqueValueRenderer(renderer as UniqueValueRenderer, graphic)
+      await applyUniqueValueRenderer(
+        renderer as UniqueValueRenderer,
+        graphic,
+        analysisLayer.requiredFields
+      )
     );
-  } else if (symbolType === "class-breaks-classified") {
+  } else if (analysisLayer.symbolType === "class-breaks-classified") {
     layerResults.attributes.push(
       await applyClassBreaksClassifiedRenderer(
         renderer as ClassBreaksRenderer,
-        graphic
+        graphic,
+        analysisLayer.requiredFields
       )
     );
-  } else if (symbolType === "class-breaks-unclassed") {
+  } else if (analysisLayer.symbolType === "class-breaks-unclassed") {
     layerResults.attributes.push(
       await applyClassBreaksUnclassedRenderer(
         renderer as ClassBreaksRenderer,
-        graphic
+        graphic,
+        analysisLayer.requiredFields,
+        analysisLayer.normalizationField
       )
     );
   }
@@ -171,20 +187,25 @@ const inspectPieChart = (
   // Get the total value
   let attributeSum = 0;
   analysisLayer.requiredFields.forEach(
-    (requiredField) => (attributeSum += graphic.attributes[requiredField])
+    (requiredField) => (attributeSum += graphic.attributes[requiredField.name])
   );
 
   // Get the attribute array
   const attributes = analysisLayer.requiredFields.map((field, index) => {
     return {
-      name: field,
-      value: new Intl.NumberFormat("en-US").format(graphic.attributes[field]),
+      name: field.label,
+      value: new Intl.NumberFormat("en-US").format(
+        graphic.attributes[field.name]
+      ),
       order: index,
-      label: `${graphic.attributes[field]} (${new Intl.NumberFormat("en-US", {
-        style: "percent",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(graphic.attributes[field] / attributeSum)})`,
+      label: `${graphic.attributes[field.name]} (${new Intl.NumberFormat(
+        "en-US",
+        {
+          style: "percent",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
+      ).format(graphic.attributes[field.name] / attributeSum)})`,
     };
   });
 
@@ -205,16 +226,31 @@ export const inspectLocation = async (
   const resultsPromises = analysisLayers.map(
     async (analysisLayer): Promise<LocationResult> => {
       // Construct and apply a query at the location's Point for the AnalysisLayer's
-      // rewuired fields and recieve the result as a Graphic
+      // required fields and recieve the result as a Graphic
+      const queryFields = analysisLayer.requiredFields.map(
+        (field) => field.name
+      );
+      if (analysisLayer.normalizationField)
+        queryFields.push(analysisLayer.normalizationField.name);
       const graphic = await makeQuery(
         location.point,
-        analysisLayer.requiredFields,
+        queryFields,
         analysisLayer.layer
       );
 
       // If nothing came back, use a generic "No data". No graphic means that the
       // query returne no results. In this case, that there is no overlap
       if (!graphic) {
+        let value: string;
+        let name: string;
+        if (analysisLayer.symbolType === "simple") {
+          value = "No";
+          name = "Inside boundary";
+        } else {
+          value = "No data";
+          name = "";
+        }
+        // const value = analysisLayer.symbolType === "simple" ? "No" : "No data";
         return {
           sourceLayer: analysisLayer.title,
           graphic: undefined,
@@ -223,10 +259,11 @@ export const inspectLocation = async (
               name: getAttributeName(
                 analysisLayer.layer.renderer as
                   | UniqueValueRenderer
-                  | ClassBreaksRenderer
+                  | ClassBreaksRenderer,
+                analysisLayer.requiredFields
               ),
-              value: "No data",
-              label: "No data",
+              value: value,
+              label: value,
               order: 0,
             },
           ],
@@ -235,12 +272,7 @@ export const inspectLocation = async (
         // If a graphic came back, use the renderer for non-pie legends and
         // use the graphic otherwise.
         if (!(analysisLayer.symbolType === "pie-chart")) {
-          return await applyRenderer(
-            analysisLayer.title,
-            analysisLayer.symbolType,
-            graphic,
-            analysisLayer.layer.renderer
-          );
+          return await applyRenderer(analysisLayer, graphic);
         } else if (analysisLayer.symbolType === "pie-chart") {
           return inspectPieChart(analysisLayer, graphic);
         } else {

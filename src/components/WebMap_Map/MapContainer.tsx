@@ -56,18 +56,28 @@ export const MapContainer = (props: MapContainerProps) => {
         // List all of the feature layers and cast them as a
         // feature layer - they default to the generic Layer
         const analysisLayers: AnalysisLayer[] = [];
-        webmap.allLayers.forEach((layer, index) => {
-          if (layer.type === "feature") {
-            analysisLayers.push(
-              getAnalysisLayerInfo(layer as FeatureLayer, index)
-            );
-          }
+
+        // For this to work correctly, we need to wait for all layer views
+        // to be ready. Get a list of promises for each layer's whenLayerView
+        const layerPromises = webmap.allLayers.map((layer) =>
+          viewRef.current?.whenLayerView(layer)
+        );
+
+        // When all are ready, then loop over each layer and get the info we need
+        Promise.all(layerPromises).then((_) => {
+          webmap.allLayers.forEach((layer, index) => {
+            if (layer.type === "feature") {
+              analysisLayers.push(
+                getAnalysisLayerInfo(layer as FeatureLayer, index)
+              );
+            }
+          });
         });
         const home = new Home({
           view: viewRef.current,
         });
         viewRef.current.ui.add(home, "top-right");
-        console.log(analysisLayers);
+        // console.log(analysisLayers);
         props.setAnalysisLayers(analysisLayers);
       });
       // webmap.layers.add(locationsLayer);
