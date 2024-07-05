@@ -193,33 +193,26 @@ const inspectPieChart = (
   };
 };
 
+// Note - If Raster support ever added, this will need to get reworked. Assumes
+//        AnalysisLayers are FeatureLayers
 export const inspectLocation = async (
   location: Location,
   analysisLayers: AnalysisLayer[]
 ): Promise<LocationResult[]> => {
-  const resultsPromises = analysisLayers.map(async (analysisLayer) => {
-    const graphic = await makeQuery(
-      location.point,
-      analysisLayer.requiredFields,
-      analysisLayer.layer
-    );
-    if (location.label === "The Gap No. 39, Saskatchewan") {
-      console.log(graphic);
-    }
-    if (graphic) {
-      // For non-pie chart types, use the renderer
-      if (!(analysisLayer.symbolType === "pie-chart")) {
-        return await applyRenderer(
-          analysisLayer.title,
-          analysisLayer.symbolType,
-          graphic,
-          analysisLayer.layer.renderer
-        );
-      } else if (analysisLayer.symbolType === "pie-chart") {
-        return inspectPieChart(analysisLayer, graphic);
-      }
-    } else {
-      if (analysisLayer.layer.type === "feature") {
+  // For each layer in analysis layers
+  const resultsPromises = analysisLayers.map(
+    async (analysisLayer): Promise<LocationResult> => {
+      // Construct and apply a query at the location's Point for the AnalysisLayer's
+      // rewuired fields and recieve the result as a Graphic
+      const graphic = await makeQuery(
+        location.point,
+        analysisLayer.requiredFields,
+        analysisLayer.layer
+      );
+
+      // If nothing came back, use a generic "No data". No graphic means that the
+      // query returne no results. In this case, that there is no overlap
+      if (!graphic) {
         return {
           sourceLayer: analysisLayer.title,
           graphic: undefined,
@@ -237,15 +230,30 @@ export const inspectLocation = async (
           ],
         };
       } else {
-        console.log("No data recieved for non-feature layer type layer");
-        return {
-          sourceLayer: analysisLayer.title,
-          graphic: undefined,
-          attributes: [],
-        };
+        // If a graphic came back, use the renderer for non-pie legends and
+        // use the graphic otherwise.
+        if (!(analysisLayer.symbolType === "pie-chart")) {
+          return await applyRenderer(
+            analysisLayer.title,
+            analysisLayer.symbolType,
+            graphic,
+            analysisLayer.layer.renderer
+          );
+        } else if (analysisLayer.symbolType === "pie-chart") {
+          return inspectPieChart(analysisLayer, graphic);
+        } else {
+          console.log(
+            `unsupported layer or renderer for ${analysisLayer.title}`
+          );
+          return {
+            sourceLayer: analysisLayer.title,
+            graphic: undefined,
+            attributes: [],
+          };
+        }
       }
     }
-  });
+  );
   const results = await Promise.all(resultsPromises);
   return results;
 };
