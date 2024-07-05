@@ -9,6 +9,8 @@ import {
   ArcgisChartsScatterPlot,
 } from "@arcgis/charts-components-react";
 
+import "./arcGISChart.css";
+
 type ArcGISChart = typeof ArcgisChartsBarChart | typeof ArcgisChartsScatterPlot;
 
 interface ArcGISChartProps {
@@ -29,7 +31,7 @@ export const ArcGISChart = ({
         <ArcgisChartsBarChart
           config={definitionLayer.charts[definitionId]}
           layer={dataLayer}
-          className="comparison--chart--arcgis"
+          className="chart--arcgis"
         ></ArcgisChartsBarChart>
       );
     case "scatterSeries":
@@ -37,7 +39,7 @@ export const ArcGISChart = ({
         <ArcgisChartsScatterPlot
           config={definitionLayer.charts[definitionId]}
           layer={dataLayer}
-          className="comparison--chart--arcgis"
+          className="chart--arcgis"
         />
       );
     case "histogramSeries":
@@ -45,7 +47,7 @@ export const ArcGISChart = ({
         <ArcgisChartsHistogram
           config={definitionLayer.charts[definitionId]}
           layer={dataLayer}
-          className="comparison--chart--arcgis"
+          className="chart--arcgis"
         ></ArcgisChartsHistogram>
       );
     case "pieSeries":
@@ -53,7 +55,7 @@ export const ArcGISChart = ({
         <ArcgisChartsPieChart
           config={definitionLayer.charts[definitionId]}
           layer={dataLayer}
-          className="comparison--chart--arcgis"
+          className="chart--arcgis"
         ></ArcgisChartsPieChart>
       );
     case "boxPlotSeries":
@@ -61,7 +63,7 @@ export const ArcGISChart = ({
         <ArcgisChartsBoxPlot
           config={definitionLayer.charts[definitionId]}
           layer={dataLayer}
-          className="comparison--chart--arcgis"
+          className="chart--arcgis"
         ></ArcgisChartsBoxPlot>
       );
     case "lineSeries":
@@ -69,7 +71,7 @@ export const ArcGISChart = ({
         <ArcgisChartsLineChart
           config={definitionLayer.charts[definitionId]}
           layer={dataLayer}
-          className="comparison--chart--arcgis"
+          className="chart--arcgis"
         ></ArcgisChartsLineChart>
       );
 

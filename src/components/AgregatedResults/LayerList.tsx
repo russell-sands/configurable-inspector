@@ -6,6 +6,8 @@ import { LayerCard } from "./LayerCard";
 import { Location } from "../../App";
 import { ChartDefinitions, getChartDefinitions } from "./getChartDefinitions";
 
+import "./layerList.css";
+
 // WOULD BE USED if using ArcGIS Charts
 // import { createResultLayers } from "../utils/createResultLayers";
 
@@ -29,19 +31,21 @@ export const LayerList = ({ analysisLayers, locations }: LocationListProps) => {
   }
 
   return (
-    <CalciteCardGroup label="Location List" className="list--layers">
-      {(() => {
-        if (locations.length > 0) {
-          return analysisLayers.map((analysisLayer) => (
-            <LayerCard
-              key={analysisLayer.id}
-              title={analysisLayer.title}
-              definition={chartDefinitions[analysisLayer.title]}
-              symbolType={analysisLayer.symbolType}
-            />
-          ));
-        } else return <></>;
-      })()}
-    </CalciteCardGroup>
+    <div className="list--layers--container">
+      <CalciteCardGroup label="Layer List" className="list--layers">
+        {(() => {
+          if (locations.length > 0) {
+            return analysisLayers.map((analysisLayer) => (
+              <LayerCard
+                key={analysisLayer.id}
+                title={analysisLayer.title}
+                definition={chartDefinitions[analysisLayer.title]}
+                symbolType={analysisLayer.symbolType}
+              />
+            ));
+          } else return <></>;
+        })()}
+      </CalciteCardGroup>
+    </div>
   );
 };

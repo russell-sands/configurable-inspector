@@ -1,4 +1,16 @@
-.list--locations {
-  display: flex;
-  flex-direction: column;
+.list--locations--container {
+  overflow-y: scroll;
+}
+
+.list--locations--container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.list--locations--container::-webkit-scrollbar-track {
+  border-radius: 3px;
+  background-color: gainsboro;
+}
+.list--locations--container::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: darkgray;
 }

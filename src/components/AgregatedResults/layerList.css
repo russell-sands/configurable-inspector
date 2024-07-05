@@ -1,0 +1,17 @@
+.list--layers--container {
+  overflow-y: scroll;
+  height: 100%;
+}
+
+.list--layers--container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.list--layers--container::-webkit-scrollbar-track {
+  border-radius: 3px;
+  background-color: gainsboro;
+}
+.list--layers--container::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: darkgray;
+}

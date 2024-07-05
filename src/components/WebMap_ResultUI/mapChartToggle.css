@@ -1,0 +1,34 @@
+.toggle--charts {
+  padding-right: 7px;
+  margin: auto;
+}
+
+.chip--map {
+  --calcite-color-brand: rgb(0, 150, 255);
+  --calcite-ui-icon-color: rgb(0, 150, 255);
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.chip--map[selected] {
+  --calcite-color-foreground-2: rgba(0, 150, 255, 0.25);
+}
+
+.chip--charts {
+  --calcite-color-brand: rgb(122, 129, 255);
+  --calcite-ui-icon-color: rgb(122, 129, 255);
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.chip--charts[selected] {
+  --calcite-color-foreground-2: rgba(122, 129, 255, 0.25);
+}
+
+.chip--summary {
+  --calcite-color-brand: rgb(242, 95, 161);
+  --calcite-ui-icon-color: rgb(242, 95, 161);
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.chip--summary[selected] {
+  --calcite-color-foreground-2: rgba(242, 95, 161, 0.25);
+}

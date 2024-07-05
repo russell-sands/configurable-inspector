@@ -9,6 +9,8 @@ import { ElementDefinition, SymbolType } from "../../shared/types";
 import { ClassifiedValuesChart } from "./ClassifiedValuesChart";
 import { HistogramChart } from "./HistogramChart";
 
+import "./layerCard.css";
+
 interface LocationCardProps {
   title: string;
   symbolType: SymbolType;

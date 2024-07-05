@@ -15,6 +15,8 @@ import { createResultLayers } from "./createResultLayers";
 import { ComparisonCharts } from "./ComparisonCharts";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
+import "./chartCarousel.css";
+
 interface ChartCarouselProps {
   locations: Location[];
   chartLayers: AnalysisLayer[];
@@ -53,11 +55,7 @@ export const ChartCarousel = ({
   });
 
   return (
-    <CalciteTabs
-      position="top"
-      //   layout="center"
-      className="comparsion--chart--container"
-    >
+    <CalciteTabs position="top" className="comparsion--chart--container">
       <CalciteTabNav slot="title-group">
         {compareSettings.map((setting) => {
           return (

@@ -22,6 +22,13 @@ interface MapChartUIProps {
 
 export type ViewMode = "map" | "summary" | "charts";
 
+const getHeading = (viewMode: string) => {
+  if (viewMode === "map") return "Map Results";
+  else if (viewMode === "summary") return "Layer Summary Charts";
+  else if (viewMode === "charts") return "Comparison Charts";
+  else return "Oops! Update getHeading() in MapChartUI.tsx";
+};
+
 export const MapChartUI = ({
   id,
   webmapId,
@@ -41,7 +48,8 @@ export const MapChartUI = ({
   if (chartLayers.length) hasComparisonCharts = true;
 
   // Set the Heading based on the current view mode
-  const heading = viewMode === "map" ? "Result Map" : "Comparison Charts";
+  const heading = getHeading(viewMode);
+
   return (
     <CalcitePanel heading={heading} id={id}>
       <MapChartToggle
@@ -61,7 +69,10 @@ export const MapChartUI = ({
         />
       </div>
 
-      <div hidden={viewMode === "summary" ? undefined : true}>
+      <div
+        hidden={viewMode === "summary" ? undefined : true}
+        style={{ height: "100%" }}
+      >
         <LayerList analysisLayers={analysisLayers} locations={locations} />
       </div>
       {(() => {

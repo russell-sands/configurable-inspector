@@ -2,6 +2,8 @@ import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 
 import { ArcGISChart } from "./ArcGISChart";
 
+import "./comparisonCharts.css";
+
 interface ComparisonChartProps {
   sourceLayer: FeatureLayer;
   compareLayer: FeatureLayer;

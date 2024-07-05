@@ -5,6 +5,8 @@ import { Location } from "../../App";
 import { LocationCard } from "./LocationCard";
 import { SelectedLocationElement } from "../../shared/types";
 
+import "./locationList.css";
+
 interface LocationListProps {
   locations: Location[];
   setSelectedElement: (
@@ -17,14 +19,16 @@ export const LocationList = ({
   setSelectedElement,
 }: LocationListProps) => {
   return (
-    <CalciteCardGroup label="Location List" className="list--locations">
-      {locations.map((location, index) => (
-        <LocationCard
-          key={`${location.id}-${index}`}
-          location={location}
-          setSelectedElement={setSelectedElement}
-        />
-      ))}
-    </CalciteCardGroup>
+    <div className="list--locations--container">
+      <CalciteCardGroup label="Location List" className="list--locations">
+        {locations.map((location, index) => (
+          <LocationCard
+            key={`${location.id}-${index}`}
+            location={location}
+            setSelectedElement={setSelectedElement}
+          />
+        ))}
+      </CalciteCardGroup>
+    </div>
   );
 };

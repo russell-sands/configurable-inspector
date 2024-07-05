@@ -4,6 +4,8 @@ import { CalciteChipGroup, CalciteChip } from "@esri/calcite-components-react";
 import { CalciteChipGroupCustomEvent } from "@esri/calcite-components";
 import { ViewMode } from "./MapChartUI";
 
+import "./mapChartToggle.css";
+
 interface MapChartToggleProps {
   hasComparisonCharts: true | undefined;
   viewMode: ViewMode;
@@ -19,7 +21,7 @@ export const MapChartToggle = ({
   };
   return (
     <CalciteChipGroup
-      id="toggle--charts"
+      className="toggle--charts"
       label="map=-chart-toggle"
       selectionMode="single-persist"
       slot="header-actions-end"
@@ -28,7 +30,7 @@ export const MapChartToggle = ({
       <CalciteChip
         icon="map"
         value="map"
-        id="chip--map"
+        className="chip--map"
         selected={viewMode === "map" ? true : undefined}
       >
         Map
@@ -36,7 +38,7 @@ export const MapChartToggle = ({
       <CalciteChip
         icon="graph-pie-slice"
         value="summary"
-        id="chip--summary"
+        className="chip--summary"
         selected={viewMode === "summary" ? true : undefined}
       >
         Summary Charts
@@ -45,7 +47,7 @@ export const MapChartToggle = ({
         hidden={hasComparisonCharts ? undefined : true}
         icon="graph-moving-average"
         value="charts"
-        id="chip--charts"
+        className="chip--charts"
         selected={viewMode === "charts" ? true : undefined}
       >
         Comparison Charts

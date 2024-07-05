@@ -1,0 +1,6 @@
+.chart--arcgis {
+  height: calc(
+    100% - (var(--chart-subtitle-font-size) + var(--chart-subtitle-padding-top))
+  );
+  width: 100%;
+}

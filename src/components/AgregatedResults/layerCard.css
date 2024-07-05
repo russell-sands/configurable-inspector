@@ -1,0 +1,9 @@
+.calcite--card--layer {
+  width: 48%;
+}
+
+.chart--container {
+  width: 550px;
+  height: 100%;
+  min-height: 200px;
+}

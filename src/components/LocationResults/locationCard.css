@@ -1,5 +1,5 @@
 :root {
-  --border-color: black;
+  --border-color: var(--calcite-color-text-3);
 }
 
 .location--card {
@@ -11,8 +11,9 @@
 
 .card--title {
   width: 100%;
-  font-size: 1.2rem;
-  border-bottom: 3px solid black;
+  font-size: 1.1rem;
+  font-weight: normal;
+  /* border-bottom: 3px solid var(--calcite-color-text-3); */
 }
 
 .location--card--results {
@@ -48,5 +49,5 @@
   /* border: 1px solid var(--border-color); */
   /* border-top: 1px solid var(--border-color); */
   /* border-left: 1px solid var(--border-color); */
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
