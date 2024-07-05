@@ -50,6 +50,79 @@ const getAttributeName = (
   return result;
 };
 
+/* Functions for getting attribute information from different renderers */
+
+// Unique Values Renderer - very similar to Class Breask renderers when
+// no class breaks have been defined
+const applyUniqueValueRenderer = async (
+  renderer: UniqueValueRenderer,
+  graphic: Graphic
+): Promise<AttributeInfo> => {
+  const renderInfo = await renderer.getUniqueValueInfo(graphic);
+
+  // Get the value. Making an assumption here data with no label. Because
+  // the renderer is "unique values", show the value at this location in
+  // the label
+  const value = renderInfo?.label ? renderInfo.label : `Other`;
+  const label = renderInfo?.label
+    ? renderInfo.label
+    : `Undefined (${graphic.attributes[renderer.field]})`;
+
+  // Use both the result & label:
+  // - At the location level, show the "unique value" that
+  //   a feature has, ven though it is outside of the renderer's
+  //   definition
+  // - In the layer level charts, lump them all together
+  return {
+    name: getAttributeName(renderer),
+    value: value,
+    order: 0,
+    label: label,
+  };
+};
+
+const applyClassBreaksClassifiedRenderer = async (
+  renderer: ClassBreaksRenderer,
+  graphic: Graphic
+): Promise<AttributeInfo> => {
+  const renderInfo = await renderer.getClassBreakInfo(graphic);
+  // For class breaks legends values that are classified,
+  // we always want the labels
+  const value = renderInfo?.label
+    ? renderInfo.label
+    : `Other (${graphic.attributes[renderer.field]})`;
+  return {
+    name: getAttributeName(renderer),
+    value: value,
+    order: 0,
+    label: value,
+  };
+};
+
+const applyClassBreaksUnclassedRenderer = async (
+  renderer: ClassBreaksRenderer,
+  graphic: Graphic
+): Promise<AttributeInfo> => {
+  // Get the value of the field
+  let value = graphic.attributes[renderer.field];
+
+  // If the value is normalized by a field, normalize the value
+  // by the renderer's normalizationField
+  if (renderer.normalizationField === "field") {
+    value /= graphic.attributes[renderer.normalizationField];
+  }
+
+  // Retur the attribute information
+  return {
+    name: getAttributeName(renderer),
+    value: new Intl.NumberFormat("en-US").format(value),
+    order: 0,
+    label: new Intl.NumberFormat("en-US").format(value),
+  };
+};
+
+// For unique value and class break renderers, use the renderer
+// to figure out what the value and label should be
 const applyRenderer = async (
   sourceLayer: string,
   symbolType: SymbolType,
@@ -63,82 +136,61 @@ const applyRenderer = async (
     attributes: [],
   };
 
-  // Each Renderer has unique elements that we may need to process
-  // I could reduce the repetition here but I think it is more clear
-  // to have the repeats per type. Classified vs unclassified are very
-  // similar but I think the separation helps / reflects more how they
-  // are defined in the source materials (web map)
-
+  // Depending on the render settings, use the renderer to get the value and
+  // label to use.
   if (symbolType === "unique-values") {
-    const uniqueValueRenderer = renderer as UniqueValueRenderer;
-    const renderInfo = await uniqueValueRenderer.getUniqueValueInfo(graphic);
-    // If there is a label, use that as the result. Otherwise for a unique
-    // value renderer assume that this is the "Other" category, and show the text
-    // "Other" + the value
-    if (graphic?.attributes) {
-      const value = renderInfo?.label
-        ? renderInfo.label
-        : `Other (${graphic.attributes[uniqueValueRenderer.field]})`;
-      console.log(value);
-      layerResults.attributes.push({
-        name: getAttributeName(uniqueValueRenderer),
-        value: value,
-        order: 0,
-        label: value,
-      });
-    }
+    layerResults.attributes.push(
+      await applyUniqueValueRenderer(renderer as UniqueValueRenderer, graphic)
+    );
   } else if (symbolType === "class-breaks-classified") {
-    const classBreaksRenderer = renderer as ClassBreaksRenderer;
-    const renderInfo = await classBreaksRenderer.getClassBreakInfo(graphic);
-    // For class breaks legends values that are classified,
-    // we always want the labels
-    const value = renderInfo?.label
-      ? renderInfo.label
-      : `Other (${graphic.attributes[classBreaksRenderer.field]})`;
-    layerResults.attributes.push({
-      name: getAttributeName(classBreaksRenderer),
-      value: value,
-      order: 0,
-      label: value,
-    });
+    layerResults.attributes.push(
+      await applyClassBreaksClassifiedRenderer(
+        renderer as ClassBreaksRenderer,
+        graphic
+      )
+    );
   } else if (symbolType === "class-breaks-unclassed") {
-    // Unclassed class-breaks are very similar initially...
-    const classBreaksRenderer = renderer as ClassBreaksRenderer;
-    // However we need to account for whether or not the data are normalized and
-    // then adjust the value accordingly.
-
-    // Using switch in case need to add other normaliztion types in the future
-    const rawValue = graphic.attributes[classBreaksRenderer.field];
-    switch (classBreaksRenderer.normalizationType) {
-      case null:
-        // If normalizationType is null, return the field result and ge the name
-        // as usual
-        layerResults.attributes.push({
-          name: getAttributeName(classBreaksRenderer),
-          value: new Intl.NumberFormat("en-US").format(rawValue),
-          order: 0,
-          label: new Intl.NumberFormat("en-US").format(rawValue),
-        });
-        break;
-      case "field":
-        // If normalization type is field, reflect that in the attribute name, then
-        // return the normalized value.
-        layerResults.attributes.push({
-          name: `${classBreaksRenderer.field} / ${classBreaksRenderer.normalizationField}`,
-          value: new Intl.NumberFormat("en-US").format(
-            rawValue /
-              graphic.attributes[classBreaksRenderer.normalizationField]
-          ),
-          order: 0,
-          label: new Intl.NumberFormat("en-US").format(
-            rawValue /
-              graphic.attributes[classBreaksRenderer.normalizationField]
-          ),
-        });
-        break;
-    }
+    layerResults.attributes.push(
+      await applyClassBreaksUnclassedRenderer(
+        renderer as ClassBreaksRenderer,
+        graphic
+      )
+    );
   }
   return layerResults;
+};
+
+// For pie chart renderers, everything necessary is in the analysisLayer info
+// and the graphic.
+const inspectPieChart = (
+  analysisLayer: AnalysisLayer,
+  graphic: Graphic
+): LocationResult => {
+  // Get the total value
+  let attributeSum = 0;
+  analysisLayer.requiredFields.forEach(
+    (requiredField) => (attributeSum += graphic.attributes[requiredField])
+  );
+
+  // Get the attribute array
+  const attributes = analysisLayer.requiredFields.map((field, index) => {
+    return {
+      name: field,
+      value: new Intl.NumberFormat("en-US").format(graphic.attributes[field]),
+      order: index,
+      label: `${graphic.attributes[field]} (${new Intl.NumberFormat("en-US", {
+        style: "percent",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(graphic.attributes[field] / attributeSum)})`,
+    };
+  });
+
+  return {
+    sourceLayer: analysisLayer.title,
+    graphic: graphic,
+    attributes: attributes,
+  };
 };
 
 export const inspectLocation = async (
@@ -151,6 +203,9 @@ export const inspectLocation = async (
       analysisLayer.requiredFields,
       analysisLayer.layer
     );
+    if (location.label === "The Gap No. 39, Saskatchewan") {
+      console.log(graphic);
+    }
     if (graphic) {
       // For non-pie chart types, use the renderer
       if (!(analysisLayer.symbolType === "pie-chart")) {
@@ -161,34 +216,7 @@ export const inspectLocation = async (
           analysisLayer.layer.renderer
         );
       } else if (analysisLayer.symbolType === "pie-chart") {
-        // TODO PULL THIS INTO FUNCTION
-        // For Pie charts, all we need are the required fields and graphic.
-        // For the label, return the % of the total
-        let attributeSum = 0;
-        analysisLayer.requiredFields.forEach(
-          (field) => (attributeSum += graphic.attributes[field])
-        );
-        return {
-          sourceLayer: analysisLayer.title,
-          graphic: graphic,
-          attributes: analysisLayer.requiredFields.map((field, index) => {
-            return {
-              name: field,
-              value: new Intl.NumberFormat("en-US").format(
-                graphic.attributes[field]
-              ),
-              order: index,
-              label: `${graphic.attributes[field]} (${new Intl.NumberFormat(
-                "en-US",
-                {
-                  style: "percent",
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }
-              ).format(graphic.attributes[field] / attributeSum)})`,
-            };
-          }),
-        };
+        return inspectPieChart(analysisLayer, graphic);
       }
     } else {
       if (analysisLayer.layer.type === "feature") {
@@ -202,7 +230,8 @@ export const inspectLocation = async (
                   | UniqueValueRenderer
                   | ClassBreaksRenderer
               ),
-              value: "No Data",
+              value: "No data",
+              label: "No data",
               order: 0,
             },
           ],
@@ -218,6 +247,5 @@ export const inspectLocation = async (
     }
   });
   const results = await Promise.all(resultsPromises);
-  console.log(results);
   return results;
 };
