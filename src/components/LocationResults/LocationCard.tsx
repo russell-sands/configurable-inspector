@@ -94,13 +94,13 @@ export const LocationCard = ({
                         key={`${location.id}-${result.sourceLayer}-${attribute.name}-name`}
                         className="location--card--result--label"
                       >
-                        {attribute.name}
+                        {attribute.nameLabel}
                       </div>
                       <div
                         key={`${location.id}-${result.sourceLayer}-${attribute.name}-value`}
                         className="location--card--result--value"
                       >
-                        {attribute.label}
+                        {attribute.valueLabel}
                       </div>
                     </>
                   );

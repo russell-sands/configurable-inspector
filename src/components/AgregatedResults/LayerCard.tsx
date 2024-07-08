@@ -23,7 +23,8 @@ export const LayerCard = ({
   definition,
 }: LocationCardProps) => {
   let chartTitle = title;
-  if (symbolType === "unique-values") chartTitle += " (Count of locations)";
+  if (symbolType === "unique-values" || symbolType === "simple")
+    chartTitle += " (Count of locations)";
   if (symbolType === "class-breaks-classified")
     chartTitle += " (Count of locations)";
   if (symbolType === "class-breaks-unclassed")
@@ -34,7 +35,7 @@ export const LayerCard = ({
       <span slot="heading">{chartTitle}</span>
       <div className="chart--container">
         {(() => {
-          if (symbolType === "unique-values") {
+          if (symbolType === "unique-values" || symbolType === "simple") {
             return <UniqueValuesChart chartDefinition={definition} />;
           } else if (symbolType === "class-breaks-classified") {
             return <ClassifiedValuesChart chartDefinition={definition} />;

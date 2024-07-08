@@ -3,6 +3,7 @@ import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import { AnalysisLayer } from "../../utils/getAnalysisLayerInfo";
 import { ChartDataElements } from "./getChartData";
 import PieChartRenderer from "@arcgis/core/renderers/PieChartRenderer";
+import SimpleRenderer from "@arcgis/core/renderers/SimpleRenderer";
 
 // interface ChartStyles {
 //   [index: string]: IndexedString;
@@ -69,7 +70,7 @@ const handleUnclassedHistogram = (chartLabels: string[]): StyleDefinition[] => {
 };
 
 const handlePieColors = (
-  chartLabels: string[],
+  // chartLabels: string[],
   renderer: PieChartRenderer
 ): StyleDefinition[] => {
   return renderer.attributes.map((attribute, index) => {
@@ -79,6 +80,21 @@ const handlePieColors = (
       order: index,
     };
   });
+};
+
+const handleSimpleColors = (renderer: SimpleRenderer): StyleDefinition[] => {
+  return [
+    {
+      label: "Outside boundary",
+      fill: "rgba(0, 0, 0, .5)",
+      order: 1,
+    },
+    {
+      label: "Inside boundary",
+      fill: `rgba(${renderer.symbol.color.r}, ${renderer.symbol.color.g}, ${renderer.symbol.color.b}, ${renderer.symbol.color.a})`,
+      order: 0,
+    },
+  ];
 };
 
 export const getChartStyles = (
@@ -93,31 +109,38 @@ export const getChartStyles = (
     const chartLabels = chartDataElements[analysisLayer.title].map(
       (dataElement) => dataElement.name
     );
-    if (analysisLayer.symbolType === "unique-values") {
-      chartStyles[analysisLayer.title] = handleUniqueValueRenderer(
-        chartLabels,
-        renderer as UniqueValueRenderer
-      );
-    } else if (analysisLayer.symbolType === "class-breaks-classified") {
-      chartStyles[analysisLayer.title] = handleClassifiedDataRenderer(
-        chartLabels,
-        renderer as ClassBreaksRenderer
-      );
-    } else if (analysisLayer.symbolType === "class-breaks-unclassed") {
-      chartStyles[analysisLayer.title] = handleUnclassedHistogram(chartLabels);
-    } else if (analysisLayer.symbolType === "pie-chart") {
-      chartStyles[analysisLayer.title] = handlePieColors(
-        chartLabels,
-        renderer as PieChartRenderer
+    if (analysisLayer.symbolType != "simple") {
+      if (analysisLayer.symbolType === "unique-values") {
+        chartStyles[analysisLayer.title] = handleUniqueValueRenderer(
+          chartLabels,
+          renderer as UniqueValueRenderer
+        );
+      } else if (analysisLayer.symbolType === "class-breaks-classified") {
+        chartStyles[analysisLayer.title] = handleClassifiedDataRenderer(
+          chartLabels,
+          renderer as ClassBreaksRenderer
+        );
+      } else if (analysisLayer.symbolType === "class-breaks-unclassed") {
+        chartStyles[analysisLayer.title] =
+          handleUnclassedHistogram(chartLabels);
+      } else if (analysisLayer.symbolType === "pie-chart") {
+        chartStyles[analysisLayer.title] = handlePieColors(
+          // chartLabels,
+          renderer as PieChartRenderer
+        );
+      }
+      const chartStyle = chartStyles[analysisLayer.title];
+      chartStyle.unshift({
+        label: "No data",
+        fill: "rgba(0, 0, 0, .5)",
+        order: Infinity,
+      });
+      chartStyles[analysisLayer.title] = chartStyle;
+    } else if (analysisLayer.symbolType === "simple") {
+      chartStyles[analysisLayer.title] = handleSimpleColors(
+        renderer as SimpleRenderer
       );
     }
-    const chartStyle = chartStyles[analysisLayer.title];
-    chartStyle.unshift({
-      label: "No data",
-      fill: "rgba(0, 0, 0, .5)",
-      order: Infinity,
-    });
-    chartStyles[analysisLayer.title] = chartStyle;
   });
   return chartStyles;
 };

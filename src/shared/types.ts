@@ -3,6 +3,8 @@ import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
 import PieChartRenderer from "@arcgis/core/renderers/PieChartRenderer";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import Point from "@arcgis/core/geometry/Point";
+// import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
+// import Graphic from "@arcgis/core/Graphic";
 
 export type SelectedLocationElement = {
   zoomToLocation: Point;
@@ -14,6 +16,22 @@ export type AnySupportedRenderer =
   | ClassBreaksRenderer
   | PieChartRenderer
   | SimpleRenderer;
+
+// export type FieldInfo = {
+//   name: string;
+//   label: string;
+// };
+
+// export interface AnalysisLayer {
+//   title: string; // consider removing this and using layer.title instead?
+//   layer: FeatureLayer;
+//   id: number; // Using drawing order
+//   symbolType: SymbolType;
+//   requiredFields: FieldInfo[];
+//   normalizationField: FieldInfo | null;
+//   isExpressionBased: boolean;
+//   graphicToValue: (graphic: Graphic) => string | number;
+// }
 
 export interface IndexedString {
   [index: string]: string;

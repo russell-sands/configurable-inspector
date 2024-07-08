@@ -10,12 +10,12 @@ import {
 } from "../components/UploadModal/UploadLoactions";
 
 import { Location } from "../App";
-import { RenderResult } from "./x_inspectLocation";
+import { LocationResult } from "./inspectLocations";
 
 export interface QueryResult {
   title: string | undefined;
   subtitle: string | undefined;
-  result: RenderResult | undefined;
+  result: LocationResult | undefined;
 }
 
 const defaultSymbol = new SimpleMarkerSymbol({
@@ -55,7 +55,7 @@ const parseAddresses = async (
       id: r.address,
       label: r.address,
       point: r.location,
-      results: undefined,
+      results: [],
     };
   });
   return locations;
@@ -79,7 +79,7 @@ const parseLonLat = (
       id: `Location ${index + 1}`,
       label: `Location ${index + 1}`,
       point: point,
-      results: undefined,
+      results: [],
     };
   });
   return locations;

@@ -31,8 +31,8 @@ export const getChartDefinitions = (
         )[0]?.value;
         // Since "No data" is always being added as a style option, it always
         // needs a value here
-        if (checkValue) value = checkValue;
-        else if (style.label === "No Data") value = 0;
+        if (checkValue !== null) value = checkValue;
+        else if (style.label === "No data") value = 0;
         return {
           label: style.label,
           fill: style.fill,
@@ -41,11 +41,6 @@ export const getChartDefinitions = (
         };
       }
     );
-    console.log(analysisLayer.title, analysisLayer.symbolType);
-    if (analysisLayer.symbolType === "pie-chart") {
-      console.log(analysisLayer.title, chartDefinitions[analysisLayer.title]);
-      console.log(layerData, layerStyle);
-    }
   });
   return chartDefinitions;
 };

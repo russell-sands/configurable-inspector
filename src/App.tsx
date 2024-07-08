@@ -38,7 +38,8 @@ import { UploadLocations } from "./components/UploadModal/UploadLoactions";
 import Point from "@arcgis/core/geometry/Point";
 import { LocationList } from "./components/LocationResults/LocationList.tsx";
 import { AnalysisLayer } from "./utils/getAnalysisLayerInfo";
-import { DisplayInfo } from "./utils/x_inspectLocation.tsx";
+// import { Result } from "./utils/x_inspectLocation.tsx";
+// import { LocationResult } from "./utils/inspectLocations.tsx";
 import { MapChartUI } from "./components/WebMap_ResultUI/MapChartUI";
 import { SelectedLocationElement } from "./shared/types";
 import { LocationResult, inspectLocation } from "./utils/inspectLocations.tsx";
@@ -49,13 +50,6 @@ export interface Location {
   point: Point;
   // results: DisplayInfo[] | undefined;
   results: LocationResult[];
-}
-
-export interface Location2 {
-  id: string | number;
-  label: string;
-  point: Point;
-  results: DisplayInfo[] | undefined;
 }
 
 function App() {

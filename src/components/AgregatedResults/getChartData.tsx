@@ -51,9 +51,7 @@ const handleUnclased = (
     location.results?.forEach((result) => {
       if (result.sourceLayer === layerTitle) {
         // US FORMATTED NUMBERS ONLY
-        unclassedResults.push(
-          Number(result.attributes[0].value.replace(",", ""))
-        );
+        unclassedResults.push(Number(result.attributes[0].value));
       }
     })
   );
@@ -76,20 +74,53 @@ const handlePies = (
         result.attributes.forEach((attribute) => {
           if (hasKey(layerResult, attribute.name)) {
             const updatedValue =
-              layerResult[attribute.name] +
-              Number(attribute.value.replace(",", ""));
+              layerResult[attribute.name] + Number(attribute.value);
             layerResult[attribute.name] = updatedValue;
           } else {
             // If there is no summary value for the category yet, set it to 1
-            layerResult[attribute.name] = Number(
-              attribute.value.replace(",", "")
-            );
+            layerResult[attribute.name] = Number(attribute.value);
           }
         });
       }
     });
   });
   return layerResult;
+};
+
+const handleSimple = (
+  locations: Location[],
+  layerTitle: string
+): BinnedDataElement[] => {
+  // First, get the layer level results by flattening out all of the location
+  // level results to be <"Inside boundary" | "Outside boundary">[]
+  const layerResults = locations
+    .map(
+      (location) =>
+        location.results.filter(
+          (result) => result.sourceLayer === layerTitle
+        )[0].attributes
+    )
+    .flat();
+
+  // Get the aggregated results by filtering on each of the two possible
+  // values and then checking the length of the filtered result.
+  const aggregatedResults = [
+    {
+      name: "Inside boundary",
+      value: layerResults.filter(
+        (attribute) => attribute.valueLabel === "Inside boundary"
+      ).length,
+    },
+    {
+      name: "Outside boundary",
+      value: layerResults.filter(
+        (attribute) => attribute.valueLabel === "Outside boundary"
+      ).length,
+    },
+  ];
+
+  // Return the aggregated results
+  return aggregatedResults;
 };
 
 export const getChartData = (
@@ -123,8 +154,10 @@ export const getChartData = (
           return { name: key, value: layerResult[key] };
         }
       );
+    } else if (analysisLayer.symbolType === "simple") {
+      const chartElements = handleSimple(locations, analysisLayer.title);
+      chartDataElements[analysisLayer.title] = chartElements;
     } else {
-      // RN its because you never actually implemented histograms
       console.log(analysisLayer);
     }
   });

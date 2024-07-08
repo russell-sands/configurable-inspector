@@ -41,6 +41,7 @@ const checkIfExpressionBased = (renderer: FeatureLayerRenderer): boolean => {
   }
 };
 
+// If possible, get a limited set of fields
 export const getRequiredFields = (renderer: FeatureLayerRenderer): string[] => {
   const requiredFields = [];
   if (renderer.type === "pie-chart") {
@@ -61,6 +62,11 @@ export const getRequiredFields = (renderer: FeatureLayerRenderer): string[] => {
     requiredFields.push("OBJECTID");
   }
   return requiredFields;
+};
+
+// For renerers or charts that I haven't figured out yet, get all of the fields
+const getAllFields = (layer: FeatureLayer): string[] => {
+  return layer.fields.map((field) => field.name);
 };
 
 const getFieldLabel = (fieldName: string, layer: FeatureLayer) => {
@@ -92,7 +98,9 @@ export const getAnalysisLayerInfo = (
   // Get the required fields. When inspecting a location, an empty []
   // is equivilent to "all fields"
   const requiredFieldNames: string[] =
-    hasCharts || isExpressionBased ? [] : getRequiredFields(renderer);
+    hasCharts || isExpressionBased
+      ? getAllFields(layer)
+      : getRequiredFields(renderer);
 
   const requiredFields = requiredFieldNames.map((fieldName) => {
     return {
@@ -100,8 +108,6 @@ export const getAnalysisLayerInfo = (
       label: getFieldLabel(fieldName, layer),
     };
   });
-
-  console.log(requiredFields[0]);
   return {
     title: layer.title,
     layer: layer,

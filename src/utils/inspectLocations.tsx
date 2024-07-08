@@ -1,17 +1,20 @@
 import Graphic from "@arcgis/core/Graphic";
-import { Location } from "../App";
-import { AnalysisLayer, FieldInfo } from "./getAnalysisLayerInfo";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import Point from "@arcgis/core/geometry/Point";
-import { FeatureLayerRenderer, SymbolType } from "../shared/types";
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 import ClassBreaksRenderer from "@arcgis/core/renderers/ClassBreaksRenderer";
-import Renderer from "@arcgis/core/renderers/Renderer";
+
+import { FeatureLayerRenderer } from "../shared/types";
+import { Location } from "../App";
+import { AnalysisLayer, FieldInfo } from "./getAnalysisLayerInfo";
+
+import { evaluateVisualizationArcade } from "./evaluateArcade";
 
 type AttributeInfo = {
   name: string;
+  nameLabel: string;
   value: string;
-  label: string;
+  valueLabel: string;
   order: number;
 };
 
@@ -45,12 +48,11 @@ const findFieldLabel = (field: string, fieldInfos: FieldInfo[]) => {
 };
 
 const getAttributeName = (
-  renderer: UniqueValueRenderer | ClassBreaksRenderer,
-  fields: FieldInfo[]
+  renderer: UniqueValueRenderer | ClassBreaksRenderer
 ): string => {
   if (renderer?.valueExpressionTitle) return renderer.valueExpressionTitle;
   else if (renderer.legendOptions?.title) return renderer.legendOptions.title;
-  else return findFieldLabel(renderer.field, fields);
+  else return renderer.field;
 };
 
 /* Functions for getting attribute information from different renderers */
@@ -72,16 +74,21 @@ const applyUniqueValueRenderer = async (
     ? renderInfo.label
     : `Undefined (${graphic.attributes[renderer.field]})`;
 
-  // Use both the result & label:
-  // - At the location level, show the "unique value" that
-  //   a feature has, ven though it is outside of the renderer's
-  //   definition
-  // - In the layer level charts, lump them all together
+  // Attribute name and label are based eitehr on the attribute expression
+  // or the
+  const attributeName = renderer.valueExpressionTitle
+    ? renderer.valueExpressionTitle
+    : getAttributeName(renderer);
+  const attributeLabel = renderer.valueExpressionTitle
+    ? renderer.valueExpressionTitle
+    : findFieldLabel(attributeName, fields);
+
   return {
-    name: getAttributeName(renderer, fields),
+    name: attributeLabel,
+    nameLabel: attributeLabel,
     value: value,
+    valueLabel: label,
     order: 0,
-    label: label,
   };
 };
 
@@ -96,11 +103,22 @@ const applyClassBreaksClassifiedRenderer = async (
   const value = renderInfo?.label
     ? renderInfo.label
     : `Other (${graphic.attributes[renderer.field]})`;
+
+  // Attribute name and label are based eitehr on the attribute expression
+  // or the
+  const attributeName = renderer.valueExpressionTitle
+    ? renderer.valueExpressionTitle
+    : getAttributeName(renderer);
+  const attributeLabel = renderer.valueExpressionTitle
+    ? renderer.valueExpressionTitle
+    : findFieldLabel(attributeName, fields);
+
   return {
-    name: getAttributeName(renderer, fields),
+    name: attributeName,
+    nameLabel: attributeLabel,
     value: value,
+    valueLabel: value,
     order: 0,
-    label: value,
   };
 };
 
@@ -110,25 +128,39 @@ const applyClassBreaksUnclassedRenderer = async (
   fields: FieldInfo[],
   normalizationFieldInfo: FieldInfo | null
 ): Promise<AttributeInfo> => {
-  // Get the value of the field
-  let value = graphic.attributes[renderer.field];
-  let name = getAttributeName(renderer, fields);
+  // Get the value of the field - Here we will keep track of the source
+  // name as well because we need to properly keep the name and label
+  // clear in the case that the value is normalized
+  let value = renderer.valueExpressionTitle
+    ? await evaluateVisualizationArcade(renderer.valueExpression, graphic)
+    : graphic.attributes[renderer.field];
+  const attributeNameSrc = renderer.valueExpressionTitle
+    ? renderer.valueExpressionTitle
+    : getAttributeName(renderer);
+  let attributeName = attributeNameSrc;
+  let attributeLabel = renderer.valueExpressionTitle
+    ? renderer.valueExpressionTitle
+    : findFieldLabel(attributeName, fields);
 
   // If the value is normalized by a field, normalize the value
   // by the renderer's normalizationField
   if (renderer.normalizationType === "field") {
     if (normalizationFieldInfo) {
-      value /= graphic.attributes[renderer.normalizationField];
-      name = `${name} / ${normalizationFieldInfo.label}`;
+      value /= graphic.attributes[normalizationFieldInfo.name];
+      attributeName = `${attributeNameSrc} / ${normalizationFieldInfo.label}`;
+      attributeLabel = `${findFieldLabel(attributeNameSrc, fields)} / ${
+        normalizationFieldInfo.label
+      }`;
     }
   }
 
-  // Retur the attribute information
+  // Return the attribute information
   return {
-    name: name,
-    value: new Intl.NumberFormat("en-US").format(value),
+    name: attributeName,
+    nameLabel: attributeLabel,
+    value: value,
+    valueLabel: new Intl.NumberFormat("en-US").format(value),
     order: 0,
-    label: new Intl.NumberFormat("en-US").format(value),
   };
 };
 
@@ -190,15 +222,13 @@ const inspectPieChart = (
     (requiredField) => (attributeSum += graphic.attributes[requiredField.name])
   );
 
-  // Get the attribute array
+  // Get the attribute array - for a pie, show the value & add % of total
   const attributes = analysisLayer.requiredFields.map((field, index) => {
     return {
-      name: field.label,
-      value: new Intl.NumberFormat("en-US").format(
-        graphic.attributes[field.name]
-      ),
-      order: index,
-      label: `${graphic.attributes[field.name]} (${new Intl.NumberFormat(
+      name: field.name,
+      nameLabel: findFieldLabel(field.name, analysisLayer.requiredFields),
+      value: graphic.attributes[field.name],
+      valueLabel: `${graphic.attributes[field.name]} (${new Intl.NumberFormat(
         "en-US",
         {
           style: "percent",
@@ -206,6 +236,7 @@ const inspectPieChart = (
           maximumFractionDigits: 2,
         }
       ).format(graphic.attributes[field.name] / attributeSum)})`,
+      order: index,
     };
   });
 
@@ -213,6 +244,26 @@ const inspectPieChart = (
     sourceLayer: analysisLayer.title,
     graphic: graphic,
     attributes: attributes,
+  };
+};
+
+const simpleSymbolResult = (
+  title: string,
+  graphic: Graphic | undefined,
+  where: "Inside" | "Outside"
+) => {
+  return {
+    sourceLayer: title,
+    graphic: graphic,
+    attributes: [
+      {
+        name: "Spatial relationship",
+        nameLabel: "Spatial Relationship",
+        value: where as string,
+        valueLabel: (where as string) + " boundary",
+        order: 0,
+      },
+    ],
   };
 };
 
@@ -239,16 +290,15 @@ export const inspectLocation = async (
       );
 
       // If nothing came back, use a generic "No data". No graphic means that the
-      // query returne no results. In this case, that there is no overlap
+      // query returned no results. In this case, that there is no overlap
       if (!graphic) {
         let value: string;
         let name: string;
         if (analysisLayer.symbolType === "simple") {
-          value = "No";
-          name = "Inside boundary";
+          return simpleSymbolResult(analysisLayer.title, undefined, "Outside");
         } else {
           value = "No data";
-          name = "";
+          name = "No data";
         }
         // const value = analysisLayer.symbolType === "simple" ? "No" : "No data";
         return {
@@ -256,14 +306,10 @@ export const inspectLocation = async (
           graphic: undefined,
           attributes: [
             {
-              name: getAttributeName(
-                analysisLayer.layer.renderer as
-                  | UniqueValueRenderer
-                  | ClassBreaksRenderer,
-                analysisLayer.requiredFields
-              ),
+              name: name,
+              nameLabel: name,
               value: value,
-              label: value,
+              valueLabel: value,
               order: 0,
             },
           ],
@@ -271,10 +317,17 @@ export const inspectLocation = async (
       } else {
         // If a graphic came back, use the renderer for non-pie legends and
         // use the graphic otherwise.
-        if (!(analysisLayer.symbolType === "pie-chart")) {
+        if (
+          !(
+            analysisLayer.symbolType === "pie-chart" ||
+            analysisLayer.symbolType === "simple"
+          )
+        ) {
           return await applyRenderer(analysisLayer, graphic);
         } else if (analysisLayer.symbolType === "pie-chart") {
           return inspectPieChart(analysisLayer, graphic);
+        } else if (analysisLayer.symbolType === "simple") {
+          return simpleSymbolResult(analysisLayer.title, graphic, "Inside");
         } else {
           console.log(
             `unsupported layer or renderer for ${analysisLayer.title}`
