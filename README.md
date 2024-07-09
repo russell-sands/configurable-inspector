@@ -96,7 +96,7 @@ These charts then allow for comparing the overall distribution of values in your
 
 **Other things to be aware of / keep in mind**:
 
-- **Each chart must have a unique name**, chart names in your web map must not repeat.
+- Each chart must have a unique name, chart names in your web map must not repeat.
 - ArcGIS Charts are realtively heavy. Adding many charts to your map may negatively impact initial draw performance.
 
 ## Using the Application
