@@ -1,7 +1,8 @@
 {
   "name": "inspector",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "homepage": "./",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,7 +16,6 @@
     "@arcgis/core": "^4.29.10",
     "@esri/calcite-components": "^2.8.2",
     "@esri/calcite-components-react": "^2.8.2",
-    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "d3": "^7.9.0",
     "qs": "^6.12.1",
     "react": "^18.2.0",
@@ -28,6 +28,7 @@
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
