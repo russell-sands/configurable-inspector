@@ -23,7 +23,7 @@ interface MapChartUIProps {
 export type ViewMode = "map" | "summary" | "charts";
 
 const getHeading = (viewMode: string) => {
-  if (viewMode === "map") return "Map Results";
+  if (viewMode === "map") return "Map";
   else if (viewMode === "summary") return "Layer Summary Charts";
   else if (viewMode === "charts") return "Comparison Charts";
   else return "Oops! Update getHeading() in MapChartUI.tsx";

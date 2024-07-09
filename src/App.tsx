@@ -62,20 +62,22 @@ function App() {
 
   const params = new URLSearchParams(window.location.search);
   const webmap = params.get("webmap")
-    ? params.get("webmap")
+    ? (params.get("webmap") as string)
     : analysis.webmapId;
 
   const appTitle = params.get("title")
-    ? params.get("title")
+    ? (params.get("title") as string)
     : application.heading;
 
   const appSubtitle = params.get("subtitle")
-    ? params.get("subtitle")
+    ? (params.get("subtitle") as string)
     : application.description;
 
-  const appIcon = params.get("icon") ? params.get("icon") : application.icon;
+  const appIcon = params.get("icon")
+    ? (params.get("icon") as string)
+    : application.icon;
 
-  const { credential, portalUser, error } = usePortalNU();
+  const { credential, portalUser } = usePortalNU();
 
   const toggleModal = () => {
     setModalOpen(modalOpen ? undefined : true);

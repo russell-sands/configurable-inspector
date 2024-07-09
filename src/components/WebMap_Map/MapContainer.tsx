@@ -74,9 +74,9 @@ export const MapContainer = (props: MapContainerProps) => {
           });
         });
         const home = new Home({
-          view: viewRef.current,
+          view: viewRef.current as MapView,
         });
-        viewRef.current.ui.add(home, "top-right");
+        viewRef.current!.ui.add(home, "top-right");
         // console.log(analysisLayers);
         props.setAnalysisLayers(analysisLayers);
       });

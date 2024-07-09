@@ -25,7 +25,7 @@ export const getChartDefinitions = (
 
     chartDefinitions[analysisLayer.title] = layerStyle.map(
       (style): ElementDefinition => {
-        let value: number;
+        let value!: number;
         const checkValue = layerData.filter(
           (element) => element.name === style.label
         )[0]?.value;
