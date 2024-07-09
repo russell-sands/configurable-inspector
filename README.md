@@ -6,7 +6,7 @@
 1. Open your command prompt and navigate to the folder containing the app
 1. Run `npm install`
 1. Update `./src/config.json` (see below)
-1. Update `homepage` in `package.json` if needed
+1. Update `base` in `vite.config.ts` if needed
 1. Run ``npm run dev` and confirm that the app behaves as expected
 1. Run `npm run build` and deploy the results from `./dist`
 
