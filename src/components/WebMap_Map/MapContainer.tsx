@@ -5,6 +5,7 @@ import WebMap from "@arcgis/core/WebMap";
 import MapView from "@arcgis/core/views/MapView";
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Home from "@arcgis/core/widgets/Home.js";
+import Legend from "@arcgis/core/widgets/Legend";
 
 import { pointsToGraphics } from "../../utils/processData";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
@@ -73,10 +74,17 @@ export const MapContainer = (props: MapContainerProps) => {
             }
           });
         });
+
+        // Add the home and legend widgets
         const home = new Home({
           view: viewRef.current as MapView,
         });
-        viewRef.current!.ui.add(home, "top-right");
+        const legend = new Legend({
+          view: viewRef.current as MapView,
+        });
+
+        viewRef.current!.ui.add(home, "top-left");
+        viewRef.current!.ui.add(legend, "top-right");
         // console.log(analysisLayers);
         props.setAnalysisLayers(analysisLayers);
       });
