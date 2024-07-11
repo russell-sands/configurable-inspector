@@ -94,6 +94,7 @@ export const MapContainer = (props: MapContainerProps) => {
     }
   }, [props.locations]);
 
+  // When a change occurs on the selected location, update the map state
   useEffect(() => {
     if (props.selectedLocation) {
       viewRef.current?.goTo({
@@ -101,13 +102,15 @@ export const MapContainer = (props: MapContainerProps) => {
         zoom: 10,
         opts: { durration: 500 },
       });
-      viewRef.current?.map.allLayers.forEach((layer) => {
-        if (layer.title === props.selectedLocation?.displayLayer) {
-          layer.visible = true;
-        } else {
-          if (layer.type === "feature") layer.visible = false;
-        }
-      });
+      if (props.selectedLocation.displayLayer !== "--no-update") {
+        viewRef.current?.map.allLayers.forEach((layer) => {
+          if (layer.title === props.selectedLocation?.displayLayer) {
+            layer.visible = true;
+          } else {
+            if (layer.type === "feature") layer.visible = false;
+          }
+        });
+      }
     } else {
       viewRef.current?.map.allLayers.forEach((layer) => {
         if (layer.type === "feature") layer.visible = false;

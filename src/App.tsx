@@ -126,9 +126,7 @@ function App() {
                   locations={locations}
                   setSelectedElement={setSelectedElement}
                 />
-                <div slot="footer">
-                  <em>Select a result to filter the map</em>
-                </div>
+                <div slot="footer">Select a result to filter the map</div>
               </CalcitePanel>
               <MapChartUI
                 id="panel--map"

@@ -1,5 +1,6 @@
 .list--locations--container {
   overflow-y: scroll;
+  /* background-color: rgb(150, 150, 150); */
 }
 
 .list--locations--container::-webkit-scrollbar {

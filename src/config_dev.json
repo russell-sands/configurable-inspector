@@ -1,0 +1,14 @@
+{
+  "oAuth": {
+    "portalUrl": "https://tech.maps.arcgis.com/",
+    "appId": "NEJ9cB2nwWM4LDRh"
+  },
+  "application": {
+    "heading": "Inspector",
+    "description": "Configurable Inspector",
+    "icon": "table"
+  },
+  "analysis": {
+    "webmapId": "4842914033f54caa9d526614f9491e67"
+  }
+}

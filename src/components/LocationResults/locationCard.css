@@ -1,46 +1,74 @@
 :root {
   --border-color: var(--calcite-color-text-3);
-  --item-padding: 3px;
+  --border-color-hover: gainsboro;
+  --result-padding: 3px;
+  --flex-gap: 5px;
+  --spacing-left: 5px;
 }
 
 .location--card {
   width: calc(100%);
   margin: 0 auto;
   padding: 5px;
-  --calcite-card-corner-radius: 3px;
+  --calcite-card-corner-radius: 5px;
+  --calcite-card-background-color: white;
+  --calcite-card-border-color: rgb(200, 200, 200);
 }
 
 .card--title {
   width: 100%;
   font-size: 1.1rem;
-  font-weight: normal;
+  font-weight: 600;
+  display: flex;
+  gap: var(--flex-gap);
+  align-items: center;
+}
+
+.location--results--container {
+  padding-left: var(--spacing-left);
+}
+
+.location--results--container:hover {
+  border-left: 1px solid var(--border-color-hover);
+  padding-left: 4px;
+}
+.location--results--container:hover * {
+  color: black;
+}
+
+.location--result--layer--title {
+  display: flex;
+  width: 100%;
+  border-bottom: 2px solid var(--border-color);
+  gap: var(--flex-gap);
+  align-items: center;
+  margin-bottom: var(--spacing-left);
+}
+
+.location--results--layer--name {
+  width: 100%;
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .location--card--results {
   display: grid;
   padding-bottom: 15px;
   grid-template-columns: 2fr 1fr;
+  font-size: 0.8rem;
 }
 
 .location--card--result--label {
-  margin-left: 5px;
+  margin-left: var(--spacing-left);
   align-content: center;
-  padding: var(--item-padding);
-  /* padding: 3px 0px 3px 3px; */
-  border-bottom: 1px solid var(--border-color);
+  padding: var(--result-padding);
+  border-bottom: 1px dashed var(--border-color);
 }
 
 .location--card--result--value {
+  /* color: black; */
   align-content: center;
-  padding: var(--item-padding);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.location--results--layer--name {
-  width: 100%;
-  height: 1.2rem;
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border-bottom: 1px solid var(--border-color);
+  padding: var(--result-padding);
+  border-bottom: 1px dashed var(--border-color);
 }
