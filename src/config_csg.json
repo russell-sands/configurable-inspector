@@ -1,7 +1,7 @@
 {
   "oAuth": {
-    "portalUrl": "https://tech.maps.arcgis.com/",
-    "appId": "NEJ9cB2nwWM4LDRh"
+    "portalUrl": "https://esri-cgs.maps.arcgis.com/",
+    "appId": "I7Ep8WpI9Y0VNcME"
   },
   "application": {
     "heading": "Inspector",
@@ -9,6 +9,6 @@
     "icon": "table"
   },
   "analysis": {
-    "webmapId": "4842914033f54caa9d526614f9491e67"
+    "webmapId": "28e4deb6bb4f48309f87fde4ee2adc2c"
   }
 }
