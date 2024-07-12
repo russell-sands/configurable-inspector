@@ -18,14 +18,9 @@ body,
   height: 100%;
   max-height: calc(100% - 2rem);
   display: grid;
-  /* grid-auto-columns: 1fr; */
   grid-template-columns: minmax(18rem, 0.5fr) 2fr;
-  /* grid-template-rows: 0.4fr 1fr 1fr; */
   gap: 1.5rem 1.5rem;
   grid-template-areas: "panel--locationinfos panel--results";
-  /* "panel--locationinfos panel--map panel--map"
-    "panel--locationinfos panel--map panel--map"; */
-  /* "panel--locationinfos panel--layerinfos panel--layerinfos"; */
 }
 
 #grid--container calcite-panel {
@@ -42,16 +37,3 @@ body,
 #panel--layerinfos {
   grid-area: panel--layerinfos;
 }
-
-/* @media screen and (max-width: 800px) {
-  .grid-container {
-    grid-template-columns: 1fr;
-    grid-template-areas: "panel--layerinfos" "panel--map" "panel--locationinfos";
-  }
-  .panel-start {
-    max-height: 40vh;
-  }
-  .panel-map {
-    height: 40vh;
-  }
-} */
