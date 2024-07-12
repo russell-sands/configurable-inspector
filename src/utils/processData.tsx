@@ -16,14 +16,6 @@ export interface QueryResult {
   result: LocationResult | undefined;
 }
 
-// const defaultSymbol = new SimpleMarkerSymbol({
-//   color: [226, 119, 40], // orange
-//   outline: {
-//     color: [255, 255, 255], // white
-//     width: 1,
-//   },
-// });
-
 const getIndex = (fieldInfo: LocationFields, field: string): number => {
   if (fieldInfo[field]) return fieldInfo[field]!.index;
   else return -1;
