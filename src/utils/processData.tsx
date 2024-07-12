@@ -1,6 +1,4 @@
-import Graphic from "@arcgis/core/Graphic";
 import Point from "@arcgis/core/geometry/Point";
-import SimpleMarkerSymbol from "@arcgis/core/symbols/SimpleMarkerSymbol.js";
 
 import { addressesToLocations } from "@arcgis/core/rest/locator";
 
@@ -18,13 +16,13 @@ export interface QueryResult {
   result: LocationResult | undefined;
 }
 
-const defaultSymbol = new SimpleMarkerSymbol({
-  color: [226, 119, 40], // orange
-  outline: {
-    color: [255, 255, 255], // white
-    width: 1,
-  },
-});
+// const defaultSymbol = new SimpleMarkerSymbol({
+//   color: [226, 119, 40], // orange
+//   outline: {
+//     color: [255, 255, 255], // white
+//     width: 1,
+//   },
+// });
 
 const getIndex = (fieldInfo: LocationFields, field: string): number => {
   if (fieldInfo[field]) return fieldInfo[field]!.index;
@@ -100,12 +98,4 @@ export const parseLocations = async (
   else if (locationSettings.locationType === "Latitude and Longitude")
     return parseLonLat(useData, locationSettings.fieldInfo);
   else return [];
-};
-
-// Convert points into map graphics
-export const pointsToGraphics = (locations: Location[]): Graphic[] => {
-  return locations.map(
-    (location) =>
-      new Graphic({ geometry: location.point, symbol: defaultSymbol })
-  );
 };

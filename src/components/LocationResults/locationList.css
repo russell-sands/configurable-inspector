@@ -9,7 +9,7 @@
 
 .list--locations--container::-webkit-scrollbar-track {
   border-radius: 3px;
-  background-color: gainsboro;
+  background-color: rgb(230, 230, 230);
 }
 .list--locations--container::-webkit-scrollbar-thumb {
   border-radius: 3px;

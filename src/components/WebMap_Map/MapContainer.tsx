@@ -7,7 +7,6 @@ import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Home from "@arcgis/core/widgets/Home.js";
 import Legend from "@arcgis/core/widgets/Legend";
 
-import { pointsToGraphics } from "../../utils/processData";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
 import { Location } from "../../App";
 import {
@@ -15,6 +14,8 @@ import {
   getAnalysisLayerInfo,
 } from "../../utils/getAnalysisLayerInfo";
 import { SelectedLocationElement } from "../../shared/types";
+
+import { pointsToGraphics } from "./pointsToGraphic";
 
 export interface MapContainerProps {
   webmapId: string;
@@ -65,7 +66,7 @@ export const MapContainer = (props: MapContainerProps) => {
         );
 
         // When all are ready, then loop over each layer and get the info we need
-        Promise.all(layerPromises).then((_) => {
+        Promise.all(layerPromises).then(() => {
           webmap.allLayers.forEach((layer, index) => {
             if (layer.type === "feature") {
               analysisLayers.push(
