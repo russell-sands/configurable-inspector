@@ -24,22 +24,26 @@ export interface MapContainerProps {
   setAnalysisLayers: (layers: AnalysisLayer[]) => void;
 }
 
-export const MapContainer = (props: MapContainerProps) => {
+export const MapContainer = ({
+  webmapId,
+  locations,
+  selectedLocation,
+  setAnalysisLayers,
+}: MapContainerProps) => {
   // Refs for the map div and the view
   const mapDiv = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<MapView | null>(null);
 
   const locationsLayer = useMemo(() => new GraphicsLayer(), []);
-  // const locationsLayer = new GraphicsLayer();
 
   const webmap = useMemo(
     () =>
       new WebMap({
         portalItem: {
-          id: props.webmapId,
+          id: webmapId,
         },
       }),
-    []
+    [webmapId]
   );
   webmap.layers.add(locationsLayer);
 
@@ -50,7 +54,7 @@ export const MapContainer = (props: MapContainerProps) => {
         map: webmap,
       });
     }
-  }, [mapDiv]);
+  }, [mapDiv, webmap]);
 
   useEffect(() => {
     if (viewRef.current) {
@@ -86,34 +90,32 @@ export const MapContainer = (props: MapContainerProps) => {
 
         viewRef.current!.ui.add(home, "top-left");
         viewRef.current!.ui.add(legend, "top-right");
-        // console.log(analysisLayers);
-        props.setAnalysisLayers(analysisLayers);
+        setAnalysisLayers(analysisLayers);
       });
-      // webmap.layers.add(locationsLayer);
     }
-  }, [viewRef]);
+  }, [viewRef, webmap.allLayers, setAnalysisLayers]);
 
   // Update the locations displayed on the map
   useEffect(() => {
-    if (viewRef.current && props.locations.length > 0) {
+    if (viewRef.current && locations.length > 0) {
       locationsLayer.removeAll();
-      const graphics = pointsToGraphics(props.locations);
+      const graphics = pointsToGraphics(locations);
       locationsLayer.addMany(graphics);
       viewRef.current.goTo(graphics);
     }
-  }, [props.locations]);
+  }, [locations, locationsLayer]);
 
   // When a change occurs on the selected location, update the map state
   useEffect(() => {
-    if (props.selectedLocation) {
+    if (selectedLocation) {
       viewRef.current?.goTo({
-        target: props.selectedLocation.zoomToLocation,
+        target: selectedLocation.zoomToLocation,
         zoom: 10,
         opts: { durration: 500 },
       });
-      if (props.selectedLocation.displayLayer !== "--no-update") {
+      if (selectedLocation.displayLayer !== "--no-update") {
         viewRef.current?.map.allLayers.forEach((layer) => {
-          if (layer.title === props.selectedLocation?.displayLayer) {
+          if (layer.title === selectedLocation?.displayLayer) {
             layer.visible = true;
           } else {
             if (layer.type === "feature") layer.visible = false;
@@ -125,7 +127,7 @@ export const MapContainer = (props: MapContainerProps) => {
         if (layer.type === "feature") layer.visible = false;
       });
     }
-  }, [props.selectedLocation]);
+  }, [selectedLocation]);
 
   return <div className="arcgis--map" ref={mapDiv}></div>;
 };
